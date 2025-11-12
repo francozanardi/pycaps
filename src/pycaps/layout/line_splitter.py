@@ -40,7 +40,8 @@ class LineSplitter:
                 current_line_total_width = word_width
         
         self._append_new_line(lines, current_line_words)
-        self._adjust_lines_to_constraints(lines)
+        if len(lines) > 0:
+            self._adjust_lines_to_constraints(lines)
         segment.lines.set_all(lines)
 
     def _adjust_lines_to_constraints(self, lines: List[Line]) -> None:
