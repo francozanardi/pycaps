@@ -104,6 +104,20 @@ class CapsPipeline:
 
         logger().info("Transcribing audio...")
         document = self._transcriber.transcribe(self._video_generator.get_audio_path())
+        valid_segments = []
+        for segment in document.segments:
+            if len(segment.get_words()) == 0:
+                continue
+            valid_segments.append(segment)
+
+            valid_lines = []
+            for line in segment.lines:
+                if len(line.words) == 0:
+                    continue
+                valid_lines.append(line)
+            segment.lines.set_all(valid_lines)
+        
+        document.segments.set_all(valid_segments)
         if not document.segments:
             raise RuntimeError("Transcription returned no segments.")
         
