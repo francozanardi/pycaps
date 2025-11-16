@@ -25,13 +25,13 @@ class SoundEffect(Effect):
         self._interpret_consecutive_words_as_one: bool = interpret_consecutive_words_as_one
 
     def run(self, document: Document) -> None:
-        from pycaps.video.render import AudioElement
+        from movielite import AudioClip
 
         times = self._get_elements_times(document)
         for time in times:
             path = self._sound.get_file_path()
             time = time.start + self._offset if self._when == EventType.ON_NARRATION_STARTS else time.end + self._offset
-            audio = AudioElement(path, time, self._volume)
+            audio = AudioClip(path, start=time, volume=self._volume)
             document.sfxs.append(audio)
 
     def _get_elements_times(self, document: Document) -> List[TimeFragment]:

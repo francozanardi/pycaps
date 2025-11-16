@@ -3,7 +3,7 @@ from typing import List, Optional, Set, TYPE_CHECKING
 from .types import ElementState
 
 if TYPE_CHECKING:
-    from pycaps.video.render import MediaElement, AudioElement
+    from movielite import GraphicClip, AudioClip
 
 @dataclass(frozen=True)
 class Tag:
@@ -75,7 +75,7 @@ class ElementLayout:
 class WordClip:
     _parent: Optional['Word'] = None
     states: List[ElementState] = field(default_factory=list)
-    media_clip: Optional['MediaElement'] = None
+    media_clip: Optional['GraphicClip'] = None
     layout: ElementLayout = field(default_factory=ElementLayout)
 
     def to_dict(self) -> dict:
@@ -143,7 +143,7 @@ class Word:
     def get_tags(self) -> Set[Tag]:
         return self.structure_tags | self.semantic_tags
 
-    def get_media_clips(self) -> List['MediaElement']:
+    def get_media_clips(self) -> List['GraphicClip']:
         return [clip.media_clip for clip in self.clips]
 
     def get_line(self) -> 'Line':
@@ -196,7 +196,7 @@ class Line:
     def get_tags(self) -> Set[Tag]:
         return self.structure_tags
 
-    def get_media_clips(self) -> List['MediaElement']:
+    def get_media_clips(self) -> List['GraphicClip']:
         return [clip for word in self.words for clip in word.get_media_clips()]
     
     def get_word_clips(self) -> List[WordClip]:
@@ -247,7 +247,7 @@ class Segment:
     def get_tags(self) -> Set[Tag]:
         return self.structure_tags
     
-    def get_media_clips(self) -> List['MediaElement']:
+    def get_media_clips(self) -> List['GraphicClip']:
         return [clip for line in self.lines for clip in line.get_media_clips()]
     
     def get_word_clips(self) -> List[WordClip]:
@@ -262,7 +262,7 @@ class Segment:
 @dataclass
 class Document:
     _segments: 'ElementContainer[Segment]' = field(init=False)
-    sfxs: List['AudioElement'] = field(default_factory=list)
+    sfxs: List['AudioClip'] = field(default_factory=list)
 
     def __post_init__(self):
         self._segments = ElementContainer(self)
@@ -280,7 +280,7 @@ class Document:
     def segments(self) -> 'ElementContainer[Segment]':
         return self._segments
 
-    def get_media_clips(self) -> List['MediaElement']:
+    def get_media_clips(self) -> List['GraphicClip']:
         return [clip for segment in self.segments for clip in segment.get_media_clips()]
 
     def get_word_clips(self) -> List[WordClip]:

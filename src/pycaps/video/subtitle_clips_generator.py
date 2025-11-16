@@ -2,6 +2,7 @@ from typing import Optional, Callable
 from pycaps.common import Document, Word, WordClip, ElementState, Line
 from pycaps.renderer import SubtitleRenderer
 from tqdm import tqdm
+from pycaps.logger import logger
 
 class SubtitleClipsGenerator:
 
@@ -10,7 +11,7 @@ class SubtitleClipsGenerator:
 
     def generate(self, document: Document) -> None:
         """
-        Adds the MediaElement for each word in the document received.
+        Adds the MediaClip for each word in the document received.
         """
 
         total_lines = len(document.get_lines())
@@ -85,7 +86,7 @@ class SubtitleClipsGenerator:
         pbar.update(1)
 
     def __create_word_clip(self, word_index: int, word: Word, word_state: ElementState, start: float, end: float) -> Optional[WordClip]:
-        from pycaps.video.render import ImageElement
+        from movielite import ImageClip
         import numpy as np
         
         if end <= start:
@@ -95,7 +96,7 @@ class SubtitleClipsGenerator:
         if not image:
             return None
         
-        image_element = ImageElement(np.array(image), start, end-start)
+        image_element = ImageClip(np.array(image), start, end-start)
         word_clip = WordClip(media_clip=image_element, _parent=word)
         word_clip.layout.size.width = image.width
         word_clip.layout.size.height = image.height

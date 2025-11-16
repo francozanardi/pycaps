@@ -1,8 +1,11 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, TYPE_CHECKING
 import os
 import tempfile
-from pycaps.common import Document, VideoQuality
+from pycaps.common import Document, VideoQuality as PyCapsVideoQuality
 from pycaps.logger import logger
+
+if TYPE_CHECKING:
+    from movielite import VideoQuality, VideoWriter, VideoClip
 
 class VideoGenerator:
     def __init__(self):
@@ -12,11 +15,15 @@ class VideoGenerator:
 
         # State of video generation
         self._has_video_generation_started: bool = False
-        self._video_quality: VideoQuality = VideoQuality.MIDDLE
+        self._video_writer: Optional['VideoWriter'] = None
+        self._input_video_clip: Optional['VideoClip'] = None
+        self._video_quality: Optional['VideoQuality'] = None
         self._fragment_time: Optional[tuple[float, float]] = None
 
-    def set_video_quality(self, quality: VideoQuality):
-        self._video_quality = quality
+    def set_video_quality(self, quality: PyCapsVideoQuality):
+        from movielite import VideoQuality
+
+        self._video_quality = VideoQuality(quality.value)
 
     def set_fragment_time(self, fragment_time: tuple[float, float]):
         self._fragment_time = fragment_time
@@ -27,18 +34,24 @@ class VideoGenerator:
         return self._fragment_time
 
     def start(self, input_video_path: str, output_video_path: str):
-        from .render.video_composer import VideoComposer
+        from movielite import VideoWriter, VideoClip
 
         if not os.path.exists(input_video_path):
             raise FileNotFoundError(f"Error: Input video file not found: {input_video_path}")
 
         self._input_video_path = input_video_path
         self._output_video_path = output_video_path
-        self._video_composer = VideoComposer(self._input_video_path, self._output_video_path)
+        self._input_video_clip = VideoClip(input_video_path)
         self._sanitize_fragment_time()
         if self._fragment_time:
-            self._video_composer.cut_input(self._fragment_time[0], self._fragment_time[1])
+            self._input_video_clip = self._input_video_clip.subclip(self._fragment_time[0], self._fragment_time[1])
 
+        self._video_writer: VideoWriter = VideoWriter(
+            self._output_video_path,
+            fps=self._input_video_clip.fps,
+            size=self._input_video_clip.size,
+            duration=self._input_video_clip.duration
+        )
         self._audio_path = self._get_audio_path_to_transcribe()
         self._has_video_generation_started = True
     
@@ -46,12 +59,12 @@ class VideoGenerator:
         if not self._fragment_time:
             return
         
-        start = min(max(self._fragment_time[0], 0), self._video_composer.get_input_duration() - 2)
-        end = min(max(self._fragment_time[1], 0), self._video_composer.get_input_duration())
+        start = min(max(self._fragment_time[0], 0), self._input_video_clip.duration - 2)
+        end = min(max(self._fragment_time[1], 0), self._input_video_clip.duration)
         self._fragment_time = (start, end)
 
     def _get_audio_path_to_transcribe(self) -> str:
-        from .render.audio_utils import extract_audio_for_whisper
+        from .audio_utils import extract_audio_for_whisper
 
         fd, temp_audio_file_path = tempfile.mkstemp(suffix=".wav")
         os.close(fd)
@@ -77,11 +90,13 @@ class VideoGenerator:
     def get_video_size(self) -> Tuple[int, int]:
         if not self._has_video_generation_started:
             raise RuntimeError("Video generation has not started. Call start() first.")
-        if not self._video_composer:
+        if not self._input_video_clip:
             raise RuntimeError("Video clip is not set. This is an unexpected error.")
-        return self._video_composer.get_input_size()
+        return self._input_video_clip.size
 
     def generate(self, document: Document):
+        from movielite import VideoQuality
+
         if not self._has_video_generation_started:
             raise RuntimeError("Video generation has not started. Call start() first.")
         
@@ -89,13 +104,15 @@ class VideoGenerator:
         if not clips:
             logger().warning("No subtitle clips were generated. The original video (or with external audio if provided) will be saved.")
 
+        self._video_writer.add_clip(self._input_video_clip)
         for clip in clips:
-            self._video_composer.add_element(clip)
+            self._video_writer.add_clip(clip)
         for sfx in document.sfxs:
-            self._video_composer.add_audio(sfx)
+            self._video_writer.add_clip(sfx)
 
         logger().debug(f"Writing final video to: {self._output_video_path}")
-        self._video_composer.render(use_multiprocessing=False, video_quality=self._video_quality)
+        video_quality = self._video_quality if self._video_quality else VideoQuality.MIDDLE
+        self._video_writer.write(video_quality=video_quality)
         
     def close(self):
         self._remove_audio_file_if_needed()

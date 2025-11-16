@@ -11,10 +11,10 @@ from tqdm import tqdm
 
 class AnimateSegmentEmojisEffect(ClipEffect):
 
-    CURRENT_ASSETS_VERSION = "1.0.0"
+    CURRENT_ASSETS_VERSION = "2.0.0"
 
-    ASSETS_ZIP_URL = "https://github.com/francozanardi/pycaps/releases/download/emoji-assets-v1/animated_emojis.zip"
-    ASSETS_VERSION_URL = "https://github.com/francozanardi/pycaps/releases/download/emoji-assets-v1/version.txt"
+    ASSETS_ZIP_URL = "https://github.com/francozanardi/pycaps/releases/download/emoji-assets-v2/animated_emojis.zip"
+    ASSETS_VERSION_URL = "https://github.com/francozanardi/pycaps/releases/download/emoji-assets-v2/version.txt"
 
     CACHE_DIR = Path.home() / ".pycaps" / "assets" / "emojis"
     VERSION_FILE = CACHE_DIR / "version.txt"
@@ -87,15 +87,15 @@ class AnimateSegmentEmojisEffect(ClipEffect):
         return self.VERSION_FILE.read_text().strip()
 
     def __animate_emoji_if_possible(self, clip: WordClip) -> None:
-        from pycaps.video.render import PngSequenceElement
+        from movielite import AlphaVideoClip
 
         emoji = clip.get_word().text
-        unicode_hex = self._emoji_to_unicode_hex(emoji)
-        animated_emoji_folder_path = self.CACHE_DIR / unicode_hex
-        if not os.path.isdir(animated_emoji_folder_path):
+        filename = self._emoji_to_unicode_hex(emoji) + ".gif"
+        animated_emoji_gif = self.CACHE_DIR / filename
+        if not os.path.isfile(animated_emoji_gif):
             return
     
-        clip.media_clip = PngSequenceElement(str(animated_emoji_folder_path), clip.media_clip.start, clip.media_clip.duration)
+        clip.media_clip = AlphaVideoClip(str(animated_emoji_gif), clip.media_clip.start, clip.media_clip.duration)
         clip.media_clip.set_position((clip.layout.position.x, clip.layout.position.y))
         clip.media_clip.set_size(height=clip.layout.size.height)
 
