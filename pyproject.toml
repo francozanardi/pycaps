@@ -31,14 +31,12 @@ classifiers = [
 dependencies = [
     "Pillow",
     "numpy",
-    "opencv-python",
     "pydantic",
     "typer",
     "requests",
-    "pydub>=0.25.1",
-    'audioop-lts; python_version >= "3.13"',
     "multiprocess",
-    "tqdm"
+    "tqdm",
+    "movielite",
 ]
 
 [project.optional-dependencies]
