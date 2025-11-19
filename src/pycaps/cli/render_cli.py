@@ -6,6 +6,7 @@ from pycaps.pipeline import JsonConfigLoader
 from pycaps.common import VideoQuality
 from pycaps.layout import VerticalAlignmentType, SubtitleLayoutOptions
 from pycaps.template import TemplateLoader, DEFAULT_TEMPLATE_NAME, TemplateFactory
+from pycaps.transcriber import ElevenLabsAlignmentTranscriber
 
 render_app = typer.Typer()
 
@@ -61,6 +62,7 @@ def render(
     preview: bool = typer.Option(False, "--preview", help="Generate a low quality preview of the rendered video", rich_help_panel="Utils"),
     preview_time: Optional[str] = typer.Option(None, "--preview-time", help="Generate a low quality preview of the rendered video at the given time, example: --preview-time=10,15", rich_help_panel="Utils", show_default=False),
     subtitle_data: Optional[str] = typer.Option(None, "--subtitle-data", help="Subtitle data file path. If provided, the rendering process will skip the transcription and tagging steps", rich_help_panel="Utils", show_default=False),
+    elevenlabs_alignment: Optional[str] = typer.Option(None, "--elevenlabs-alignment", help="Eleven Labs alignment JSON file path. Use this to skip Whisper transcription and use pre-generated alignment data from Eleven Labs TTS API", rich_help_panel="Utils", show_default=False),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose mode", rich_help_panel="Utils"),
 ):
     set_logging_level(logging.DEBUG if verbose else logging.INFO)
@@ -84,6 +86,7 @@ def render(
     # TODO: this has a little issue (if you set lang via js + whisper model by cli, it will change the lang to None)
     if language or whisper_model: builder.with_whisper_config(language=language, model_size=whisper_model if whisper_model else "base")
     if subtitle_data: builder.with_subtitle_data_path(subtitle_data)
+    if elevenlabs_alignment: builder.with_custom_audio_transcriber(ElevenLabsAlignmentTranscriber(elevenlabs_alignment))
     if transcription_preview: builder.should_preview_transcription(True)
     if video_quality: builder.with_video_quality(video_quality)
     if layout_align or layout_align_offset: builder.with_layout_options(_build_layout_options(builder, layout_align, layout_align_offset))

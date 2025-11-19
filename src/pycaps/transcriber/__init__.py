@@ -5,6 +5,7 @@ from .splitter import LimitByWordsSplitter, LimitByCharsSplitter, BaseSegmentSpl
 from .editor import TranscriptionEditor
 from .preview_transcriber import PreviewTranscriber
 from .google_audio_transcriber import GoogleAudioTranscriber
+from .elevenlabs_alignment_transcriber import ElevenLabsAlignmentTranscriber
 
 __all__ = [
     "AudioTranscriber",
@@ -15,5 +16,6 @@ __all__ = [
     "SplitIntoSentencesSplitter",
     "TranscriptionEditor",
     "PreviewTranscriber",
-    "GoogleAudioTranscriber"
+    "GoogleAudioTranscriber",
+    "ElevenLabsAlignmentTranscriber"
 ]
