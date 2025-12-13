@@ -5,7 +5,7 @@ class VideoQuality(str, Enum):
     LOW = "low"
     MIDDLE = "middle"
     HIGH = "high"
-    VERY_HIGH = "veryhigh"
+    VERY_HIGH = "very_high"
 
 class CacheStrategy(str, Enum):
     CSS_CLASSES_AWARE = "css-classes-aware" # two words with same CSS classes, same text are considered equal (word position on line is ignored)
