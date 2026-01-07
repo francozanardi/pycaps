@@ -6,7 +6,8 @@
         "max_number_of_lines": 2,
         "min_number_of_lines": 1,
         "vertical_align": {
-            "align": "center"
+            "align": "center",
+            "offset": 0.25
         }
     },
     "splitters": [
