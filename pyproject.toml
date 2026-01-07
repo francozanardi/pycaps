@@ -56,6 +56,9 @@ all = [
     "pywebview",
     "html2pic"
 ]
+scripts = [
+    "PyQt6",
+]
 
 [project.scripts]
 pycaps = "pycaps.cli:app"
