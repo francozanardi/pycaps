@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Subtitle Editor</title>
+    <style>
+        body {
+            background-color: #282c34;
+            color: #abb2bf;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #editor-container {
+            padding: 20px;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+
+        .segment {
+            background-color: #21252b;
+            border: 1px solid #3c4049;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 15px;
+            position: relative;
+        }
+
+        .segment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #3c4049;
+        }
+
+        .segment-title {
+            font-size: 14px;
+            color: #61afef;
+            font-weight: bold;
+        }
+
+        .segment-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-btn {
+            background-color: #4b5263;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            color: #abb2bf;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .control-btn:hover {
+            background-color: #5c6370;
+        }
+
+        .split-btn {
+            background-color: #e5c07b;
+            color: #282c34;
+        }
+
+        .split-btn:hover {
+            background-color: #f0d07b;
+        }
+
+        .merge-btn {
+            background-color: #98c379;
+            color: #282c34;
+        }
+
+        .merge-btn:hover {
+            background-color: #a8d389;
+        }
+
+        .line {
+            display: flex;
+            align-items: center;
+            background-color: #2c313a;
+            border: 1px solid #4b515d;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            position: relative;
+            flex-wrap: wrap;
+        }
+
+        .line-controls {
+            display: flex;
+            gap: 6px;
+            margin-left: auto;
+            margin-right: 8px;
+        }
+
+        .line-control-btn {
+            background-color: #4b5263;
+            border: none;
+            border-radius: 3px;
+            padding: 2px 6px;
+            font-size: 10px;
+            color: #abb2bf;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s, background-color 0.2s;
+        }
+
+        .line:hover .line-control-btn {
+            opacity: 1;
+        }
+
+        .line-control-btn:hover {
+            background-color: #5c6370;
+        }
+
+        .word {
+            display: inline-flex;
+            align-items: center;
+            background-color: #3b4048;
+            border: 1px dashed #6b7280;
+            border-radius: 4px;
+            padding: 4px 8px;
+            margin: 3px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            position: relative;
+        }
+
+        .word:hover {
+            background-color: #4b5263;
+            border-style: solid;
+            transform: translateY(-1px);
+        }
+
+        .word.selected {
+            background-color: #61afef;
+            color: #282c34;
+            border-color: #61afef;
+        }
+
+        /* Dropdown para palabras */
+        .word-dropdown {
+            position: fixed;
+            background-color: #2c313a;
+            border: 1px solid #4b515d;
+            border-radius: 6px;
+            padding: 8px 0;
+            z-index: 1000;
+            min-width: 150px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: none;
+        }
+
+        .word-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dropdown-item:hover {
+            background-color: #3e4451;
+        }
+
+        .dropdown-separator {
+            height: 1px;
+            background-color: #4b515d;
+            margin: 4px 0;
+        }
+
+        /* Tooltip para tags */
+        .word-tags {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #21252b;
+            color: #c792ea;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+            z-index: 10;
+            margin-bottom: 4px;
+        }
+
+        .word:hover .word-tags {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Modal para editar tags */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background-color: #21252b;
+            border-radius: 8px;
+            padding: 20px;
+            min-width: 300px;
+            max-width: 500px;
+        }
+
+        .modal h3 {
+            margin-top: 0;
+            color: #61afef;
+        }
+
+        .modal input, .modal textarea {
+            box-sizing: border-box;
+            width: 100%;
+            background-color: #2c313a;
+            border: 1px solid #4b515d;
+            border-radius: 4px;
+            padding: 8px;
+            color: #abb2bf;
+            font-family: inherit;
+            margin-bottom: 10px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .footer-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #21252b;
+            padding: 15px;
+            text-align: right;
+            border-top: 1px solid #3c4049;
+        }
+
+        button {
+            color: #abb2bf;
+            background-color: #4b5263;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #5c6370;
+        }
+
+        #save-btn {
+            background-color: #61afef;
+            color: #21252b;
+        }
+
+        #save-btn:hover {
+            background-color: #7abfff;
+        }
+
+        .split-indicator {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #e5c07b;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+        }
+
+        .split-indicator.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="editor-container">Loading...</div>
+    
+    <div class="footer-controls">
+        <button id="cancel-btn">Cancel</button>
+        <button id="save-btn">Save and Close</button>
+    </div>
+
+    <div id="tag-modal" class="modal-overlay">
+        <div class="modal">
+            <h3>Edit tags</h3>
+            <label>Word: <span id="modal-word-text"></span></label>
+            <textarea id="modal-tags" placeholder="Enter tags separated by commas (e.g., noun, important, technical)"></textarea>
+            <div class="modal-buttons">
+                <button id="modal-cancel">Cancel</button>
+                <button id="modal-save">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="component-value" style="display: none;"></div>
+
+    <script>
+
+        // Source: https://discuss.streamlit.io/t/code-snippet-create-components-without-any-frontend-tooling-no-react-babel-webpack-etc/13064
+        function sendMessageToStreamlitClient(type, data) {
+            const outData = Object.assign({
+                isStreamlitMessage: true,
+                type: type,
+            }, data);
+            window.parent.postMessage(outData, "*");
+        }
+
+        function init() {
+            sendMessageToStreamlitClient("streamlit:componentReady", {apiVersion: 1});
+        }
+
+        function setFrameHeight(height) {
+            sendMessageToStreamlitClient("streamlit:setFrameHeight", {height: height});
+        }
+
+        // `data` puede ser cualquier valor serializable en JSON.
+        function sendDataToPython(data) {
+            sendMessageToStreamlitClient("streamlit:setComponentValue", {value: data, dataType: "json"});
+        }
+
+        function onDataFromPython(event) {
+            if (event.data.type !== "streamlit:render") return;
+
+            const initialDocument = event.data.args.initial_document;
+            if (initialDocument) {
+                main(initialDocument);
+            } else {
+                document.getElementById('editor-container').textContent = 'Error: Could not load subtitle data.';
+            }
+        }
+
+        function main(documentData) {
+            const editorContainer = document.getElementById('editor-container');
+            const tagModal = document.getElementById('tag-modal');
+            let documentState = JSON.parse(JSON.stringify(documentData));
+            let currentWordDropdown = null;
+            let currentEditingWord = null;
+
+            function render() {
+                editorContainer.innerHTML = '';
+                
+                documentState.segments.forEach((segment, segIndex) => {
+                    const segDiv = document.createElement('div');
+                    segDiv.className = 'segment';
+                    
+                    const segHeader = document.createElement('div');
+                    segHeader.className = 'segment-header';
+                    
+                    const segTitle = document.createElement('div');
+                    segTitle.className = 'segment-title';
+                    segTitle.textContent = `Segment ${segIndex + 1} (${segment.time.start.toFixed(2)}s - ${segment.time.end.toFixed(2)}s)`;
+                    
+                    const segControls = document.createElement('div');
+                    segControls.className = 'segment-controls';
+                    
+                    if (segIndex < documentState.segments.length - 1) {
+                        const mergeBtn = document.createElement('button');
+                        mergeBtn.className = 'control-btn merge-btn';
+                        mergeBtn.textContent = 'Merge Next';
+                        mergeBtn.addEventListener('click', () => mergeSegments(segIndex));
+                        segControls.appendChild(mergeBtn);
+                    }
+                    
+                    segHeader.appendChild(segTitle);
+                    segHeader.appendChild(segControls);
+                    segDiv.appendChild(segHeader);
+
+                    segment.lines.forEach((line, lineIndex) => {
+                        const lineDiv = document.createElement('div');
+                        lineDiv.className = 'line';
+                        
+                        line.words.forEach((word, wordIndex) => {
+                            const wordSpan = document.createElement('span');
+                            wordSpan.className = 'word';
+                            wordSpan.dataset.segIndex = segIndex;
+                            wordSpan.dataset.lineIndex = lineIndex;
+                            wordSpan.dataset.wordIndex = wordIndex;
+                            wordSpan.textContent = word.text;
+
+                            if (word.semantic_tags && word.semantic_tags.length > 0) {
+                                const tagsTooltip = document.createElement('span');
+                                tagsTooltip.className = 'word-tags';
+                                tagsTooltip.textContent = word.semantic_tags.map(t => t.name).join(', ');
+                                wordSpan.appendChild(tagsTooltip);
+                            }
+
+                            wordSpan.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                showWordDropdown(wordSpan, segIndex, lineIndex, wordIndex);
+                            });
+
+                            lineDiv.appendChild(wordSpan);
+                        });
+
+                        const lineControls = document.createElement('div');
+                        lineControls.className = 'line-controls';
+                        
+                        if (lineIndex < segment.lines.length - 1) {
+                            const mergeBtn = document.createElement('button');
+                            mergeBtn.className = 'line-control-btn merge-btn';
+                            mergeBtn.textContent = 'Merge with next line';
+                            mergeBtn.addEventListener('click', () => mergeLines(segIndex, lineIndex));
+                            lineControls.appendChild(mergeBtn);
+
+                            const splitBtn = document.createElement('button');
+                            splitBtn.className = 'line-control-btn split-btn';
+                            splitBtn.textContent = 'Split into two segments';
+                            splitBtn.addEventListener('click', () => splitSegments(segIndex, lineIndex));
+                            lineControls.appendChild(splitBtn);
+                        }
+                        
+                        lineDiv.appendChild(lineControls);
+                        segDiv.appendChild(lineDiv);
+                    });
+
+                    editorContainer.appendChild(segDiv);
+                });
+            }
+
+            function showWordDropdown(wordElement, segIndex, lineIndex, wordIndex) {
+                // Cerrar dropdown anterior si existe
+                if (currentWordDropdown) {
+                    currentWordDropdown.remove();
+                }
+
+                const dropdown = document.createElement('div');
+                dropdown.className = 'word-dropdown show';
+                const rect = wordElement.getBoundingClientRect();
+                dropdown.style.top = `${rect.bottom}px`;
+                dropdown.style.left = `${rect.left}px`;
+                
+                const word = documentState.segments[segIndex].lines[lineIndex].words[wordIndex];
+                
+                dropdown.innerHTML = `
+                    <div class="dropdown-item" data-action="edit-text">✏️ Edit Text</div>
+                    <div class="dropdown-item" data-action="edit-tags">🏷️ Edit Tags</div>
+                    <div class="dropdown-separator"></div>
+                    <div class="dropdown-item" data-action="split-after">↓ Split Line After</div>
+                    <div class="dropdown-separator"></div>
+                    <div class="dropdown-item" data-action="delete" style="color: #e06c75;">🗑️ Delete Word</div>
+                `;
+
+                dropdown.addEventListener('click', (e) => {
+                    const action = e.target.dataset.action;
+                    if (!action) return;
+
+                    switch (action) {
+                        case 'edit-text':
+                            editWordText(segIndex, lineIndex, wordIndex);
+                            break;
+                        case 'edit-tags':
+                            editWordTags(segIndex, lineIndex, wordIndex);
+                            break;
+                        case 'split-after':
+                            splitLine(segIndex, lineIndex, wordIndex);
+                            break;
+                        case 'delete':
+                            deleteWord(segIndex, lineIndex, wordIndex);
+                            break;
+                    }
+                    dropdown.remove();
+                    currentWordDropdown = null;
+                });
+
+                document.body.appendChild(dropdown);
+                currentWordDropdown = dropdown;
+            }
+
+            function editWordText(segIndex, lineIndex, wordIndex) {
+                const word = documentState.segments[segIndex].lines[lineIndex].words[wordIndex];
+                const newText = prompt('Edit word (use [SPACE] key to split words):', word.text);
+                
+                if (!newText || !newText.trim()) {
+                    return;
+                }
+
+                const words = newText.trim().split(/\s+/);
+
+                if (words.length === 1) {
+                    const newWord = {
+                        text: newText,
+                        time: { start: word.time.start, end: word.time.end },
+                        semantic_tags: [],
+                        structure_tags: [],
+                        clips: [],
+                        max_layout: { position: {x:0, y:0}, size: {width:0, height:0} }
+                    };
+                    documentState.segments[segIndex].lines[lineIndex].words.splice(wordIndex, 1, newWord);
+                    render();
+                    return;
+                }
+                    
+                const originalStart = word.time.start.toFixed(2);
+                const originalEnd = word.time.end.toFixed(2);
+                const totalDuration = word.time.end - word.time.start;
+                const totalChars = words.reduce((sum, w) => sum + w.length, 0);
+                
+                let currentTime = word.time.start;
+                const timestamps = words.map((text, index) => {
+                    const duration = totalDuration * (text.length / totalChars);
+                    const start = currentTime.toFixed(2);
+                    const end = (currentTime + duration).toFixed(2);
+                    currentTime = parseFloat(end);
+                    return { text, start, end };
+                });
+                
+                const exampleMessage = timestamps.map(t => 
+                    `"${t.text}" (${t.start}s - ${t.end}s)`
+                ).join(' and ');
+                
+                const warningMessage = `Warning: You are splitting one word into multiple words!\n\n` +
+                    `Original word: "${word.text}" (${originalStart}s - ${originalEnd}s)\n` +
+                    `Will be split into: ${exampleMessage}\n\n` +
+                    `The original timestamp will be proportionally distributed based on word length.\n\n` +
+                    `Do you want to proceed with this split?`;
+                
+                if (confirm(warningMessage)) {
+                    const replacementWords = timestamps.map(t => ({
+                        text: t.text,
+                        time: { 
+                            start: parseFloat(t.start), 
+                            end: parseFloat(t.end) 
+                        },
+                        semantic_tags: [],
+                        structure_tags: [],
+                        clips: [],
+                        max_layout: { position: {x:0, y:0}, size: {width:0, height:0} }
+                    }));
+                    
+                    documentState.segments[segIndex].lines[lineIndex].words.splice(wordIndex, 1, ...replacementWords);
+                    render();
+                }
+            }
+
+            function editWordTags(segIndex, lineIndex, wordIndex) {
+                const word = documentState.segments[segIndex].lines[lineIndex].words[wordIndex];
+                currentEditingWord = { segIndex, lineIndex, wordIndex };
+                
+                document.getElementById('modal-word-text').textContent = word.text;
+                document.getElementById('modal-tags').value = word.semantic_tags.map(t => t.name).join(', ');
+                
+                tagModal.classList.add('show');
+            }
+
+            function deleteWord(segIndex, lineIndex, wordIndex) {
+                if (confirm('Delete this word?')) {
+                    documentState.segments[segIndex].lines[lineIndex].words.splice(wordIndex, 1);
+                    if (documentState.segments[segIndex].lines[lineIndex].words.length === 0) {
+                        documentState.segments[segIndex].lines.splice(lineIndex, 1);
+                    }
+                    if (documentState.segments[segIndex].lines.length === 0) {
+                        documentState.segments.splice(segIndex, 1);
+                    }
+                    render();
+                }
+            }
+
+            function splitLine(segIndex, lineIndex, wordIndex) {
+                const line = documentState.segments[segIndex].lines[lineIndex];
+                const splitAt = wordIndex + 1;
+                
+                if (splitAt > 0 && splitAt < line.words.length) {
+                    const wordsToMove = line.words.splice(splitAt);
+                    const newLine = {
+                        words: wordsToMove,
+                        structure_tags: [],
+                        time: { start: wordsToMove[0].time.start, end: wordsToMove[wordsToMove.length - 1].time.end },
+                        max_layout: { position: {x:0, y:0}, size: {width:0, height:0} }
+                    };
+                    
+                    if (line.words.length > 0) {
+                        line.time.end = line.words[line.words.length - 1].time.end;
+                    }
+                    
+                    documentState.segments[segIndex].lines.splice(lineIndex + 1, 0, newLine);
+                    render();
+                }
+            }
+
+            function mergeLines(segIndex, lineIndex) {
+                if (lineIndex + 1 < documentState.segments[segIndex].lines.length) {
+                    const nextLineWords = documentState.segments[segIndex].lines[lineIndex + 1].words;
+                    documentState.segments[segIndex].lines[lineIndex].words.push(...nextLineWords);
+                    
+                    const combinedLine = documentState.segments[segIndex].lines[lineIndex];
+                    if (combinedLine.words.length > 0) {
+                        combinedLine.time.start = combinedLine.words[0].time.start;
+                        combinedLine.time.end = combinedLine.words[combinedLine.words.length - 1].time.end;
+                    }
+                    
+                    documentState.segments[segIndex].lines.splice(lineIndex + 1, 1);
+                    render();
+                }
+            }
+
+            function splitSegments(segIndex, lineIndex) {
+                const segment = documentState.segments[segIndex];
+                const splitAt = lineIndex + 1;
+                
+                if (splitAt > 0 && splitAt < segment.lines.length) {
+                    const linesToMove = segment.lines.splice(splitAt);
+                    const newSegment = {
+                        lines: linesToMove,
+                        structure_tags: [],
+                        time: { 
+                            start: linesToMove[0].time.start, 
+                            end: linesToMove[linesToMove.length - 1].time.end 
+                        },
+                        max_layout: { position: {x:0, y:0}, size: {width:0, height:0} }
+                    };
+                    
+                    if (segment.lines.length > 0) {
+                        segment.time.end = segment.lines[segment.lines.length - 1].time.end;
+                    }
+                    
+                    documentState.segments.splice(segIndex + 1, 0, newSegment);
+                    render();
+                }
+            }
+
+            function mergeSegments(segIndex) {
+                if (segIndex + 1 < documentState.segments.length) {
+                    const nextSegmentLines = documentState.segments[segIndex + 1].lines;
+                    documentState.segments[segIndex].lines.push(...nextSegmentLines);
+                    
+                    const combinedSegment = documentState.segments[segIndex];
+                    if (combinedSegment.lines.length > 0) {
+                        combinedSegment.time.start = combinedSegment.lines[0].time.start;
+                        combinedSegment.time.end = combinedSegment.lines[combinedSegment.lines.length - 1].time.end;
+                    }
+                    
+                    documentState.segments.splice(segIndex + 1, 1);
+                    render();
+                }
+            }
+
+            document.getElementById('modal-save').addEventListener('click', () => {
+                if (currentEditingWord) {
+                    const { segIndex, lineIndex, wordIndex } = currentEditingWord;
+                    const tagsText = document.getElementById('modal-tags').value;
+                    const tagNames = tagsText.split(',').map(t => t.trim()).filter(t => t);
+                    
+                    documentState.segments[segIndex].lines[lineIndex].words[wordIndex].semantic_tags = 
+                        tagNames.map(name => ({ name }));
+                    
+                    tagModal.classList.remove('show');
+                    currentEditingWord = null;
+                    render();
+                }
+            });
+
+            document.getElementById('modal-cancel').addEventListener('click', () => {
+                tagModal.classList.remove('show');
+                currentEditingWord = null;
+            });
+
+            document.addEventListener('click', (e) => {
+                if (currentWordDropdown && !e.target.closest('.word-dropdown')) {
+                    currentWordDropdown.remove();
+                    currentWordDropdown = null;
+                }
+            });
+
+            document.getElementById('save-btn').addEventListener('click', () => {
+                documentState.segments.forEach(seg => {
+                    if (seg.lines && seg.lines.length > 0) {
+                        seg.lines.forEach(line => {
+                            if (line.words && line.words.length > 0) {
+                                line.time.start = line.words[0].time.start;
+                                line.time.end = line.words[line.words.length - 1].time.end;
+                            }
+                        });
+                        seg.time.start = seg.lines[0].time.start;
+                        seg.time.end = seg.lines[seg.lines.length - 1].time.end;
+                    }
+                });
+
+                sendDataToPython({ "action": "save", "document": documentState });
+            });
+
+            document.getElementById('cancel-btn').addEventListener('click', () => {
+                sendDataToPython({ "action": "cancel" });
+            });
+
+            render();
+        }
+
+        window.addEventListener("message", onDataFromPython);
+        init();
+        
+        setFrameHeight(700);
+    </script>
+</body>
+</html>

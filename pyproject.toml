@@ -59,6 +59,11 @@ all = [
 scripts = [
     "PyQt6",
 ]
+gui = [
+    "streamlit",
+    "openai",
+    "google-cloud-speech",
+]
 
 [project.scripts]
 pycaps = "pycaps.cli:app"

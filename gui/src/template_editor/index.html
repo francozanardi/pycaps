@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Template Editor</title>
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/material-darker.min.css">
+
+    <!-- CodeMirror JS y modos de lenguaje -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/css/css.min.js"></script>
+
+    <!-- Streamlit Component Lib -->
+    <script
+        src="https://cdn.jsdelivr.net/gh/streamlit/streamlit@master/frontend/src/streamlit-component-lib.js"></script>
+
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .editors {
+            overflow: hidden;
+        }
+
+        .editor-pane {
+            overflow: hidden;
+            padding: 5px;
+        }
+
+        .editor-pane h3 {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #FAFAFA;
+        }
+
+        .CodeMirror {
+            flex: 1;
+            border: 1px solid #444;
+            border-radius: 4px;
+            height: 390px
+        }
+
+        .buttons {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .buttons button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 10px;
+            width: 100px;
+        }
+
+        .save-btn {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .editor-help {
+            font-size: 12px;
+            color: #a0a0a0;
+            margin-top: 8px;
+            padding: 0 5px;
+            text-align: center;
+        }
+
+        .editor-help a {
+            color: #4dabf7;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .editor-help a:hover {
+            text-decoration: underline;
+        }
+
+        .editor-help code {
+            background-color: #333;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 11px;
+            color: #d0d0d0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="editors">
+            <div class="editor-pane">
+                <h3>styles.css</h3>
+                <textarea id="css-editor"></textarea>
+            </div>
+            <p class="editor-help">
+                Remember, any tag can be used as a CSS class (e.g., <code>.word.highlight</code>). 
+                See all available tags in the 
+                <a href="https://github.com/francozanardi/pycaps/blob/main/docs/TAGS.md" target="_blank" rel="noopener noreferrer">
+                    Tagging System docs
+                </a>.
+            </p>
+            <div class="editor-pane">
+                <h3>pycaps.template.json</h3>
+                <textarea id="json-editor"></textarea>
+            </div>
+            <p class="editor-help">
+                Need help with the configuration? Check the
+                <a href="https://github.com/francozanardi/pycaps/blob/main/docs/CONFIG_REFERENCE.md"
+                    target="_blank" rel="noopener noreferrer">
+                    full JSON reference
+                </a>
+                in our documentation.
+            </p>
+        </div>
+        <div class="buttons">
+            <button class="save-btn">Save</button>
+        </div>
+    </div>
+
+    <script>
+        // Source: https://discuss.streamlit.io/t/code-snippet-create-components-without-any-frontend-tooling-no-react-babel-webpack-etc/13064
+        function sendMessageToStreamlitClient(type, data) {
+            const outData = Object.assign({
+                isStreamlitMessage: true,
+                type: type,
+            }, data);
+            window.parent.postMessage(outData, "*");
+        }
+
+        function init() {
+            sendMessageToStreamlitClient("streamlit:componentReady", { apiVersion: 1 });
+        }
+
+        function setFrameHeight(height) {
+            sendMessageToStreamlitClient("streamlit:setFrameHeight", { height: height });
+        }
+
+        // `data` puede ser cualquier valor serializable en JSON.
+        function sendDataToPython(data) {
+            sendMessageToStreamlitClient("streamlit:setComponentValue", { value: data, dataType: "json" });
+        }
+
+        function onDataFromPython(event) {
+            if (event.data.type !== "streamlit:render") return;
+
+            if (event.data.args) {
+                if (!window.wereEditorsInitialized) {
+                    window.wereEditorsInitialized = true;
+                    initializeEditors(event.data.args.json, event.data.args.css);
+                }
+            } else {
+                sendDataToPython({ action: "error", message: 'Unexpected error: missing JSON and CSS' });
+                document.querySelector('.container').innerHTML = '';
+                setFrameHeight(1);
+            }
+        }
+
+        let jsonEditor, cssEditor;
+
+        function initializeEditors(jsonData, cssData) {
+            jsonEditor = CodeMirror.fromTextArea(document.getElementById('json-editor'), {
+                mode: { name: "javascript", json: true },
+                theme: 'material-darker',
+                lineNumbers: true,
+            });
+            jsonEditor.setValue(JSON.stringify(jsonData, null, 2));
+
+            cssEditor = CodeMirror.fromTextArea(document.getElementById('css-editor'), {
+                mode: 'css',
+                theme: 'material-darker',
+                lineNumbers: true,
+            });
+            cssEditor.setValue(cssData);
+        }
+
+        function sendValue() {
+            try {
+                const jsonContent = JSON.parse(jsonEditor.getValue());
+                const cssContent = cssEditor.getValue();
+                sendDataToPython({
+                    action: "save",
+                    json_content: jsonContent,
+                    css_content: cssContent
+                });
+            } catch (e) {
+                console.error("Invalid JSON format:", e);
+                sendDataToPython({ action: "error", message: "Invalid JSON format. Please correct it before saving." });
+            }
+        }
+
+        // Listeners
+        document.querySelector(".save-btn").addEventListener("click", sendValue);
+        window.addEventListener("message", onDataFromPython);
+        init();
+
+        setFrameHeight(1000);
+    </script>
+</body>
+
+</html>
