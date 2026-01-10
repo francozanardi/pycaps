@@ -15,7 +15,10 @@ if TYPE_CHECKING:
 
 class CssSubtitleRenderer(SubtitleRenderer):
 
-    DEFAULT_DEVICE_SCALE_FACTOR: int = 2
+    BASE_DEVICE_SCALE_FACTOR: float = 2.0
+    REFERENCE_VIDEO_HEIGHT: int = 1280
+    MIN_SCALE_MODIFIER: float = 0.25
+    MAX_SCALE_MODIFIER: float = 5.0
     DEFAULT_VIEWPORT_HEIGHT_RATIO: float = 0.25
     DEFAULT_MIN_VIEWPORT_HEIGHT: int = 150
 
@@ -38,6 +41,12 @@ class CssSubtitleRenderer(SubtitleRenderer):
         self._current_line: Optional[Line] = None
         self._current_line_state: Optional[ElementState] = None
         self._renderer_page: RendererPage = RendererPage()
+        self._device_scale_factor: float = self.BASE_DEVICE_SCALE_FACTOR
+
+    def _calculate_scale_modifier(self, video_height: int) -> float:
+        """Calculates a scale modifier based on video height relative to reference."""
+        modifier = video_height / self.REFERENCE_VIDEO_HEIGHT
+        return max(self.MIN_SCALE_MODIFIER, min(self.MAX_SCALE_MODIFIER, modifier))
 
     def append_css(self, css: str):
         self._custom_css += css
@@ -49,6 +58,8 @@ class CssSubtitleRenderer(SubtitleRenderer):
         if self._page:
             raise RuntimeError("Renderer is already open. Call close() first.")
 
+        scale_modifier = self._calculate_scale_modifier(video_height)
+        self._device_scale_factor = self.BASE_DEVICE_SCALE_FACTOR * scale_modifier
         calculated_vp_height = max(self.DEFAULT_MIN_VIEWPORT_HEIGHT, int(video_height * self.DEFAULT_VIEWPORT_HEIGHT_RATIO))
 
         self._cache_strategy = cache_strategy
@@ -66,7 +77,7 @@ class CssSubtitleRenderer(SubtitleRenderer):
                     "    playwright install chromium\n\n"
                     f"Full error:\n{str(e)}"
                 ) from e
-        context = self._browser.new_context(device_scale_factor=self.DEFAULT_DEVICE_SCALE_FACTOR, viewport={"width": video_width, "height": calculated_vp_height})
+        context = self._browser.new_context(device_scale_factor=self._device_scale_factor, viewport={"width": video_width, "height": calculated_vp_height})
         self._page = context.new_page()
         self._copy_resources_to_tempdir(resources_dir)
         path = self._create_html_page()
@@ -223,7 +234,7 @@ class CssSubtitleRenderer(SubtitleRenderer):
         cached_width = sum(s.width for s in cached_letters_size.values())
         cached_height = max(s.height for s in cached_letters_size.values()) if cached_letters_size else 0
         if len(not_cached_letters_size) == 0:
-            return int(cached_width * self.DEFAULT_DEVICE_SCALE_FACTOR), int(cached_height * self.DEFAULT_DEVICE_SCALE_FACTOR)
+            return int(cached_width * self._device_scale_factor), int(cached_height * self._device_scale_factor)
 
         script = f"""
         ([letters, lineCssClasses, wordCssClasses]) => {{
@@ -256,7 +267,7 @@ class CssSubtitleRenderer(SubtitleRenderer):
         height = max(cached_height, max(s.height for s in new_letters_size.values())) 
 
         # This is not precise, but it is enough to create the basic structure
-        return int(width * self.DEFAULT_DEVICE_SCALE_FACTOR), int(height * self.DEFAULT_DEVICE_SCALE_FACTOR)
+        return int(width * self._device_scale_factor), int(height * self._device_scale_factor)
 
     def close(self):
         """Closes Playwright and cleans up resources."""
