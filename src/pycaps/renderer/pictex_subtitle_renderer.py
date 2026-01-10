@@ -66,7 +66,7 @@ class PictexSubtitleRenderer(SubtitleRenderer):
         self._use_resources_dir_as_cwd()
         text = word.text[:first_n_letters] if first_n_letters else word.text
         renderer = Html2Pic(self.get_html(line_css_classes, word_css_classes, text), self._custom_css)
-        canvas, root_element = renderer.translator.translate(renderer.styled_tree, renderer.font_registry)
+        canvas, root_element = renderer._translator.translate(renderer.styled_tree, renderer.font_registry)
         try:
             image = canvas.render(root_element, crop_mode=CropMode.CONTENT_BOX, scale_factor=self._scale_factor)
             pillow_image = image.to_pillow()
@@ -97,7 +97,7 @@ class PictexSubtitleRenderer(SubtitleRenderer):
 
         self._use_resources_dir_as_cwd()
         renderer = Html2Pic(self.get_html(line_css_classes, word_css_classes, word.text), self._custom_css)
-        canvas, root_element = renderer.translator.translate(renderer.styled_tree, renderer.font_registry)
+        canvas, root_element = renderer._translator.translate(renderer.styled_tree, renderer.font_registry)
         try: 
             image = canvas.render(root_element, crop_mode=CropMode.CONTENT_BOX, scale_factor=self._scale_factor)
             self._image_cache.set(-1, word.text, all_css_classes, None, image.to_pillow())
