@@ -55,6 +55,7 @@ def render(
 
     language: Optional[str] = typer.Option(None, "--lang", help="Language of the video, example: --lang=en", rich_help_panel="Whisper", show_default=False),
     whisper_model: Optional[str] = typer.Option(None, "--whisper-model", help="Whisper model to use, example: --whisper-model=base", rich_help_panel="Whisper", show_default=False),
+    whisper_prompt: Optional[str] = typer.Option(None, "--whisper-prompt", help="Vocabulary hints for Whisper to improve accuracy (e.g., 'BrandName, TechTerm')", rich_help_panel="Whisper", show_default=False),
 
     video_quality: Optional[VideoQuality] = typer.Option(None, "--video-quality", help="Final video quality", rich_help_panel="Video", show_default=False),
 
@@ -82,7 +83,7 @@ def render(
     if output: builder.with_output_video(output)
     if style: builder.add_css_content(_parse_styles(style))
     # TODO: this has a little issue (if you set lang via js + whisper model by cli, it will change the lang to None)
-    if language or whisper_model: builder.with_whisper_config(language=language, model_size=whisper_model if whisper_model else "base")
+    if language or whisper_model or whisper_prompt: builder.with_whisper_config(language=language, model_size=whisper_model if whisper_model else "base", initial_prompt=whisper_prompt)
     if subtitle_data: builder.with_subtitle_data_path(subtitle_data)
     if transcription_preview: builder.should_preview_transcription(True)
     if video_quality: builder.with_video_quality(video_quality)
