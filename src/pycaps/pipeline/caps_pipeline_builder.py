@@ -58,8 +58,8 @@ class CapsPipelineBuilder:
         self._caps_pipeline._renderer = subtitle_renderer
         return self
     
-    def with_whisper_config(self, language: Optional[str] = None, model_size: str = "base") -> "CapsPipelineBuilder":
-        self._caps_pipeline._transcriber = WhisperAudioTranscriber(model_size=model_size, language=language)
+    def with_whisper_config(self, language: Optional[str] = None, model_size: str = "base", initial_prompt: Optional[str] = None) -> "CapsPipelineBuilder":
+        self._caps_pipeline._transcriber = WhisperAudioTranscriber(model_size=model_size, language=language, initial_prompt=initial_prompt)
         return self
     
     def with_custom_audio_transcriber(self, audio_transcriber: AudioTranscriber) -> "CapsPipelineBuilder":

@@ -4,7 +4,7 @@ from pycaps.common import Document, Segment, Line, Word, TimeFragment
 from pycaps.logger import logger
 
 class WhisperAudioTranscriber(AudioTranscriber):
-    def __init__(self, model_size: str = "base", language: Optional[str] = None, model: Optional[Any] = None):
+    def __init__(self, model_size: str = "base", language: Optional[str] = None, model: Optional[Any] = None, initial_prompt: Optional[str] = None):
         """
         Transcribes audio using OpenAI's Whisper model.
 
@@ -12,10 +12,12 @@ class WhisperAudioTranscriber(AudioTranscriber):
             model_size: Size of the Whisper model to use (e.g., "tiny", "base").
             language: Language of the audio (e.g., "en", "es").
             model: (Optional) A pre-loaded Whisper model instance. If provided, model_size is ignored.
+            initial_prompt: (Optional) Vocabulary hints for Whisper to improve accuracy on specific words (e.g., brand names).
         """
         self._model_size = model_size
         self._language = language
         self._model = model
+        self._initial_prompt = initial_prompt
 
     def transcribe(self, audio_path: str) -> Document:
         """
@@ -25,6 +27,7 @@ class WhisperAudioTranscriber(AudioTranscriber):
             audio_path,
             word_timestamps=True,
             language=self._language,
+            initial_prompt=self._initial_prompt,
             verbose=False # TODO: we should pass our --verbose param here
         )
 
