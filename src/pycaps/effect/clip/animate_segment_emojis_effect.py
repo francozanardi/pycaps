@@ -8,6 +8,7 @@ import zipfile
 import io
 from pathlib import Path
 from tqdm import tqdm
+from platformdirs import user_cache_dir
 
 class AnimateSegmentEmojisEffect(ClipEffect):
 
@@ -16,7 +17,7 @@ class AnimateSegmentEmojisEffect(ClipEffect):
     ASSETS_ZIP_URL = "https://github.com/francozanardi/pycaps/releases/download/emoji-assets-v2/animated_emojis.zip"
     ASSETS_VERSION_URL = "https://github.com/francozanardi/pycaps/releases/download/emoji-assets-v2/version.txt"
 
-    CACHE_DIR = Path.home() / ".pycaps" / "assets" / "emojis"
+    CACHE_DIR = Path(user_cache_dir("pycaps")) / "assets" / "emojis"
     VERSION_FILE = CACHE_DIR / "version.txt"
     
     def run(self, document: Document) -> None:

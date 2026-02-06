@@ -37,6 +37,7 @@ dependencies = [
     "multiprocess",
     "tqdm",
     "movielite",
+    "platformdirs"
 ]
 
 [project.optional-dependencies]
