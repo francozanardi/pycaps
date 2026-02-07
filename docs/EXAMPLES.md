@@ -83,6 +83,33 @@ print("Video has been rendered!")
 ```
 
 ---
+## Example 2.5: Render Using an Existing Transcript
+
+### CLI
+
+```bash
+pycaps render --input my_video.mp4 --template minimalist --transcript transcript.srt
+```
+
+### Python
+
+```python
+from pycaps import CapsPipelineBuilder, TranscriptFormat
+
+pipeline = (
+    CapsPipelineBuilder()
+    .with_input_video("my_video.mp4")
+    .with_transcription_file("transcript.vtt", TranscriptFormat.VTT)
+    .add_css("styles.css")
+    .build()
+)
+
+pipeline.run()
+```
+
+You can also pass a dict or a `Document` directly with `with_transcription(...)`.
+
+---
 ## Example 3: Advanced JSON with Tagger and Effects
 
 This example demonstrates a more complex setup using a JSON file. It uses a wordlist to tag specific words and applies a sound effect to them.
