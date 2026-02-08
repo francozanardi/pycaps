@@ -32,6 +32,7 @@ class CapsPipeline:
         self._sound_effects: List[SoundEffect] = []
         self._should_save_subtitle_data: bool = True
         self._subtitle_data_path_for_loading: Optional[str] = None
+        self._transcription_for_loading: Optional[Document] = None
         self._should_preview_transcription: bool = False
         self._layout_options = SubtitleLayoutOptions()
         self._preview_time: Optional[Tuple[float, float]] = None
@@ -254,6 +255,9 @@ class CapsPipeline:
                 logger().info(f"Loading subtitle data from: {self._subtitle_data_path_for_loading}")
                 document = SubtitleDataService(self._subtitle_data_path_for_loading).load()
                 self._cut_document_for_preview_time(document)
+            elif self._transcription_for_loading:
+                logger().info("Using external transcription input.")
+                document = self.process_document(self._transcription_for_loading)
             else:
                 initial_document = self.transcribe()
                 document = self.process_document(initial_document)

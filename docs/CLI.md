@@ -52,7 +52,31 @@ This will create a new video named `output_... .mp4` in your current directory.
     pycaps render ... --preview-time 10.5,15
     ```
 -   `--subtitle-data <path>`: Skips transcription and uses a pre-generated `.json` data file. Great for re-rendering with different styles.
+-   `--transcript <path>`: Uses an external transcription input and skips built-in STT.
+-   `--transcript-format <auto|whisper_json|pycaps_json|srt|vtt>`: Declares transcript format (defaults to `auto`).
 -   `-v`, `--verbose`: Show detailed logs during processing.
+
+### External Transcript Input
+
+If you already transcribed audio with another tool, you can pass that file directly:
+
+```bash
+pycaps render --input my_video.mp4 --template minimalist --transcript transcript.json
+```
+
+Supported formats:
+-   `whisper_json` (Whisper response with `segments[].words[]`)
+-   `pycaps_json` (pycaps document JSON or lightweight `segments[].words[]`)
+-   `srt`
+-   `vtt` (including inline timestamp tags)
+
+Use `--transcript-format` when auto-detection is not enough:
+
+```bash
+pycaps render --input my_video.mp4 --template minimalist --transcript subtitles.vtt --transcript-format vtt
+```
+
+`--subtitle-data` is different: it expects already processed pycaps subtitle data and skips both transcription and processing. `--transcript` still runs processing (splitters, tags, effects) after loading text/timings.
 
 ## `pycaps preview-styles`
 
@@ -88,4 +112,3 @@ Manage your Pycaps API key for AI features.
 -   `pycaps config`: Shows your currently saved API key, if any.
 -   `pycaps config --set-api-key <your-key>`: Saves your API key locally.
 -   `pycaps config --unset-api-key`: Removes your saved API key.
-

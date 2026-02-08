@@ -2,6 +2,8 @@ import os
 from .caps_pipeline import CapsPipeline
 from pycaps.layout import SubtitleLayoutOptions, LineSplitter, LayoutUpdater, PositionsCalculator
 from pycaps.transcriber import AudioTranscriber, BaseSegmentSplitter, WhisperAudioTranscriber, PreviewTranscriber
+from pycaps.transcriber import TranscriptFormat, load_transcription
+from pycaps.common import Document
 from typing import Optional
 from pycaps.animation import Animation, ElementAnimator
 from pycaps.common import ElementType, EventType, VideoQuality, CacheStrategy
@@ -75,6 +77,17 @@ class CapsPipelineBuilder:
             raise ValueError(f"Subtitle data file not found: {subtitle_data_path}")
         self._caps_pipeline._subtitle_data_path_for_loading = subtitle_data_path
         return self
+
+    def with_transcription(self, transcription: Document | dict | str, format: TranscriptFormat | str = TranscriptFormat.AUTO) -> "CapsPipelineBuilder":
+        self._caps_pipeline._transcription_for_loading = load_transcription(transcription, format)
+        return self
+
+    def with_transcription_file(self, path: str, format: TranscriptFormat | str = TranscriptFormat.AUTO) -> "CapsPipelineBuilder":
+        if not os.path.exists(path):
+            raise ValueError(f"Transcription file not found: {path}")
+        if not os.path.isfile(path):
+            raise ValueError(f"Transcription path is not a file: {path}")
+        return self.with_transcription(path, format)
     
     def should_save_subtitle_data(self, should_save: bool) -> "CapsPipelineBuilder":
         self._caps_pipeline._should_save_subtitle_data = should_save

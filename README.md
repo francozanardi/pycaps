@@ -106,6 +106,14 @@ This command will:
 3.  Apply the template's styles and animations.
 4.  Save the result in a new file.
 
+If you already have a transcript from another tool, you can skip built-in transcription:
+
+```bash
+pycaps render --input my_video.mp4 --template minimalist --transcript transcript.json
+```
+
+Supported transcript formats: `whisper_json`, `pycaps_json`, `srt`, `vtt` (`--transcript-format` is optional and defaults to `auto`).
+
 ### 2. Using the Python Library
 
 For full control, use the `CapsPipelineBuilder` in your Python code.
