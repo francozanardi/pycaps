@@ -37,6 +37,16 @@ The best choice for **processing longer videos** with **maximum transcription qu
 > *   The interface is a step-by-step code notebook, not a graphical UI.
 > *   You will be guided to enable the GPU for the best performance.
 
+### 3. Browser-Native Editor (tscaps)
+
+**[tscaps](https://tscaps.io/local)** is a sibling project built on the same core idea, CSS as the subtitle rendering engine, but running fully in the browser. No Python, no FFmpeg, no install. Transcription runs locally via in-browser Whisper.
+
+[![Try tscaps](https://img.shields.io/badge/Open-tscaps.io%2Flocal-5B7BE6?style=flat)](https://tscaps.io/local)
+
+> **Keep in mind:**
+> *   Runs fully client-side - transcription speed and quality depend on your device.
+> *   The web app is closed-source while it reaches a v1 release; the OSS mirror is being prepped to go public.
+
 ## Key Features
 
 *   **Template System**: Get started quickly with predefined templates. Create and share your own templates, packaging styles, animations, and configurations.
