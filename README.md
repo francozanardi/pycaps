@@ -13,6 +13,13 @@
 
 <sub>See more examples on <a href="https://www.pycaps.com/">pycaps.com</a></sub>
 
+> ### Want a visual editor instead? Meet tscaps
+>
+> **[tscaps](https://github.com/francozanardi/tscaps)** is the browser-native sibling of pycaps: same core idea (CSS as the subtitle rendering engine), but a full interactive editor instead of a CLI/library. Drop a video, edit and style captions with live preview, and export with the subtitles burned in. No Python, no FFmpeg, no install, transcription runs in your browser.
+>
+> It's open source (engine MIT, app AGPL-3.0). Try it instantly:
+> [![Try tscaps](https://img.shields.io/badge/Open-tscaps.io%2Flocal-5B7BE6?style=flat)](https://tscaps.io/local)
+
 ## Try It Online (no installation needed!)
 
 You have two options to test `pycaps` directly in your browser. Choose the one that best fits your needs.
@@ -36,16 +43,6 @@ The best choice for **processing longer videos** with **maximum transcription qu
 > **Keep in mind:**
 > *   The interface is a step-by-step code notebook, not a graphical UI.
 > *   You will be guided to enable the GPU for the best performance.
-
-### 3. Browser-Native Editor (tscaps)
-
-**[tscaps](https://tscaps.io/local)** is a sibling project built on the same core idea, CSS as the subtitle rendering engine, but running fully in the browser. No Python, no FFmpeg, no install. Transcription runs locally via in-browser Whisper.
-
-[![Try tscaps](https://img.shields.io/badge/Open-tscaps.io%2Flocal-5B7BE6?style=flat)](https://tscaps.io/local)
-
-> **Keep in mind:**
-> *   Runs fully client-side - transcription speed and quality depend on your device.
-> *   The web app is closed-source while it reaches a v1 release; the OSS mirror is being prepped to go public.
 
 ## Key Features
 
