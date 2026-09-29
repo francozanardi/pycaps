@@ -27,6 +27,7 @@ class PictexSubtitleRenderer(SubtitleRenderer):
         self._cache_strategy = CacheStrategy.CSS_CLASSES_AWARE
         self._image_cache: RenderedImageCache = None
         self._scale_factor: float = self.BASE_SCALE_FACTOR
+        self._word_size_cache: dict[str, Tuple[int, int]] = {}
 
     def _calculate_scale_modifier(self, video_height: int) -> float:
         """Calculates a scale modifier based on video height relative to reference."""
@@ -42,6 +43,7 @@ class PictexSubtitleRenderer(SubtitleRenderer):
         self._resources_dir = resources_dir
         self._cache_strategy = cache_strategy
         self._image_cache = RenderedImageCache(self._custom_css, self._cache_strategy)
+        self._word_size_cache = {}
 
     def open_line(self, line: Line, line_state: ElementState):
         if self._current_line:
@@ -91,9 +93,9 @@ class PictexSubtitleRenderer(SubtitleRenderer):
         line_css_classes = self.get_line_css_classes(word.get_segment().get_tags(), word.get_line().get_tags(), line_state)
         word_css_classes = self.get_word_css_classes(word.get_tags(), word_state=word_state)
         all_css_classes = line_css_classes + " " + word_css_classes
-        if self._image_cache.has(-1, word.text, all_css_classes, None):
-            image = self._image_cache.get(-1, word.text, all_css_classes, None)
-            return (image.width, image.height)
+        cache_key = f"word:{word.text}|css_classes:{all_css_classes}"
+        if self._word_size_cache is not None and cache_key in self._word_size_cache:
+            return self._word_size_cache[cache_key]
 
         self._use_resources_dir_as_cwd()
         renderer = Html2Pic(self.get_html(line_css_classes, word_css_classes, word.text), self._custom_css)
@@ -101,12 +103,51 @@ class PictexSubtitleRenderer(SubtitleRenderer):
         try: 
             image = canvas.render(root_element, crop_mode=CropMode.CONTENT_BOX, scale_factor=self._scale_factor)
             self._image_cache.set(-1, word.text, all_css_classes, None, image.to_pillow())
+            padding_width = self._get_word_padding_width(renderer.styled_tree)
+            size = (image.width + padding_width, image.height)
+            if self._word_size_cache is not None:
+                self._word_size_cache[cache_key] = size
             self._go_to_original_cwd()
-            return (image.width, image.height)
+            return size
         except:
             self._go_to_original_cwd()
             return (0, 0)
-    
+
+    def _get_word_padding_width(self, styled_tree) -> int:
+        def find_span(node):
+            if getattr(node, 'tag', None) == 'span':
+                return node
+            for child in getattr(node, 'children', []):
+                found = find_span(child)
+                if found:
+                    return found
+            return None
+
+        span = find_span(styled_tree)
+        if not span:
+            return 0
+
+        styles = getattr(span, 'computed_styles', {})
+        def parse_px(val):
+            if isinstance(val, str) and val.endswith('px'):
+                try:
+                    return float(val[:-2])
+                except ValueError:
+                    return 0.0
+            elif isinstance(val, (int, float)):
+                return float(val)
+            return 0.0
+
+        pad_left = parse_px(styles.get('padding-left', '0px'))
+        pad_right = parse_px(styles.get('padding-right', '0px'))
+
+        border_general = styles.get('border-width', '0px')
+        border_left = parse_px(styles.get('border-left-width', border_general))
+        border_right = parse_px(styles.get('border-right-width', border_general))
+
+        extra_width = (pad_left + pad_right + border_left + border_right) * self._scale_factor
+        return int(extra_width)
+
     def _use_resources_dir_as_cwd(self):
         if self._resources_dir:
             self._original_cwd = os.getcwd()
@@ -120,6 +161,7 @@ class PictexSubtitleRenderer(SubtitleRenderer):
 
     def close(self):
         self.close_line()
+        self._word_size_cache = {}
 
     def get_html(self, line_css_classes, word_css_classes, word_text) -> str:
         return f"""
