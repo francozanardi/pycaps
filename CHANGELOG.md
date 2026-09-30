@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed CSS being lost when replacing the subtitle renderer - Calling `with_custom_subtitle_renderer()` after adding CSS (e.g. after loading a template) dropped the styles, so words rendered with no gaps between them ([#22](https://github.com/francozanardi/pycaps/issues/22)).
+- Fixed CSS being lost when replacing the subtitle renderer - Calling `with_custom_subtitle_renderer()` after adding CSS (e.g. after loading a template) dropped the styles, so words rendered without the template styles and with no gaps between them ([#21](https://github.com/francozanardi/pycaps/issues/21), [#22](https://github.com/francozanardi/pycaps/issues/22)).
 
 ## [0.2.1] - 2026-01-10
 
