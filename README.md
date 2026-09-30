@@ -85,7 +85,7 @@ pycaps is currently in a very alpha stage and is not yet available on PyPI. You 
     pip install "git+https://github.com/francozanardi/pycaps.git#egg=pycaps[base,faster-whisper]"
 
     # Faster alternative, doesn't include subtitles editor, and renders without a browser (it uses google cloud speech to text and html2pic to render the subtitles)
-    pip install "git+https://github.com/francozanardi/pycaps.git#egg=pycaps[browser]"
+    pip install "git+https://github.com/francozanardi/pycaps.git#egg=pycaps[fast]"
     ```
 
 3.  **Install Browser Dependencies for Rendering (Optional):**
@@ -162,13 +162,19 @@ pipeline.run()
 
 ## What's Next?
 
-*   🚀 **For Command-Line Users**: Check the **[CLI Usage Guide](./docs/CLI.md)** for a quick and easy start.
-*   🧠 **For Developers**: Understand the core concepts in the **[Structure Guide](./docs/CORE_STRUCTURE.md)**.
-*   🏷️ **Styling & Logic**: Learn about the powerful **[Tagging System](./docs/TAGS.md)**.
-*   🎨 **Reusable Styles**: See how **[Templates](./docs/TEMPLATES.md)** work and how to create your own.
-*   💡 **Inspiration**: Dive into **[Code & JSON Examples](./docs/EXAMPLES.md)**.
-*   🔧 **Advanced Config**: See all options in the **[JSON Configuration Reference](./docs/CONFIG_REFERENCE.md)**.
-*   🤖 **AI Features**: Learn about AI-powered features in the **[API Usage Guide](./docs/API_USAGE.md)**.
+If you're new to `pycaps`, these guides are ordered to learn it step by step:
+
+1.  🚀 **[CLI Usage Guide](./docs/CLI.md)**: render your first videos from the command line.
+2.  🎨 **[Templates](./docs/TEMPLATES.md)**: use the built-in templates and create your own.
+3.  🧠 **[Core Concepts](./docs/CORE_STRUCTURE.md)**: understand how the subtitles are organized (segments, lines and words).
+4.  🏷️ **[Tagging System](./docs/TAGS.md)**: tag words to style and animate them selectively.
+5.  ✨ **[Effects & Animations](./docs/EFFECTS_AND_ANIMATIONS.md)**: bring your subtitles to life, and create your own effects and animations.
+6.  💡 **[Code & JSON Examples](./docs/EXAMPLES.md)**: complete examples that put everything together.
+
+And as reference:
+
+*   🔧 **[JSON Configuration Reference](./docs/CONFIG_REFERENCE.md)**: all the options of a template in one place.
+*   🤖 **[API Usage Guide](./docs/API_USAGE.md)**: set up the AI-powered features.
 
 ## Contributing
 

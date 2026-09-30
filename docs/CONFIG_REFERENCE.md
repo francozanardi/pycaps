@@ -28,7 +28,7 @@ The `pycaps.template.json` file is the heart of a template, defining the entire 
 
 | Key       | Type     | Default | Description                                                        |
 | --------- | -------- | ------- | ------------------------------------------------------------------ |
-| `quality` | `string` | `middle`| Output video quality. Options: `low`, `middle`, `high`, `veryhigh`. |
+| `quality` | `string` | `middle`| Output video quality. Options: `low`, `middle`, `high`, `very_high`. |
 
 ---
 
@@ -75,6 +75,7 @@ Array of objects, each defining a splitting rule. They are applied in order.
     *   `"type": "limit_by_chars"`
     *   `"max_chars": integer` (e.g., `35`)
     *   `"min_chars": integer` (e.g., `15`)
+    *   `"avoid_finishing_segment_with_word_shorter_than": integer` (default `0`, disabled). If the last word of a segment is shorter than this, the next words are added to the segment, to avoid finishing it in an unnatural way (e.g., with "a" or "the").
 *   **`split_into_sentences`**:
     *   `"type": "split_into_sentences"`
     *   `"sentences_separators": array[string]` (e.g., `[".", "?", "!"]`)
@@ -85,23 +86,15 @@ Array of objects, each defining a splitting rule. They are applied in order.
 
 `"effects": [ ... ]`
 
-*   **`emoji_in_segment`**: Adds a relevant emoji for a segment. **(Requires API Key)**
-    *   `"type": "emoji_in_segment"`
-    *   `"chance_to_apply": float` (0.0 to 1.0)
-    *   `"align": string` (`top`, `bottom`, `random`)
-*   **`emoji_in_word`**: Appends an emoji to words matching a tag.
-    *   `"type": "emoji_in_word"`
-    *   `"emojis": array[string]` (e.g., `["🔥", "🚀"]`)
-    *   `"tag_condition": string` (e.g., `"highlight"`)
-*   **`typewriting`**: Renders words character by character.
-    *   `"type": "typewriting"`
-    *   `"tag_condition": string` (e.g., `"first-line-in-segment"`)
-*   **`animate_segment_emojis`**: Replaces static emojis (from `emoji_in_segment`) with animated versions if available.
-    *   `"type": "animate_segment_emojis"`
-*   **`remove_punctuation_marks`**:
-    *   `"type": "remove_punctuation_marks"`
-    *   `"punctuation_marks": array[string]`
-    *   `"exception_marks": array[string]`
+Array of effects, applied in order. For a step-by-step explanation with examples, see the [Effects & Animations Guide](./EFFECTS_AND_ANIMATIONS.md#7-built-in-effects).
+
+| `type` | Options (default) |
+| --- | --- |
+| `remove_punctuation_marks` | `punctuation_marks` (`["."]`), `exception_marks` (`["..."]`) |
+| `emoji_in_word` | `emojis` (required), `tag_condition` (`""`), `avoid_use_same_emoji_in_a_row` (`true`) |
+| `emoji_in_segment` **(Requires API Key)** | `chance_to_apply` (`0.5`), `align` (`random`: `top`, `bottom` or `random`), `ignore_segments_with_duration_less_than` (`0`), `max_uses_of_each_emoji` (`2`), `max_consecutive_segments_with_emoji` (`3`) |
+| `typewriting` | `tag_condition` (`""`) |
+| `animate_segment_emojis` | No options. Must be used after `emoji_in_segment`. |
 
 ---
 
@@ -109,16 +102,19 @@ Array of objects, each defining a splitting rule. They are applied in order.
 
 `"sound_effects": [ ... ]`
 
-| Key            | Description                                                                   |
-| -------------- | ----------------------------------------------------------------------------- |
-| `type`         | `preset` or `custom`.                                                         |
-| `name`         | (For `preset`) e.g., `pop`, `swoosh`, `whoosh`, `click`.                       |
-| `path`         | (For `custom`) Path to audio file.                                            |
-| `when`         | `narration-starts` or `narration-ends`.                                       |
-| `what`         | `word`, `line`, or `segment`.                                                 |
-| `tag_condition`| (Optional) Condition for triggering the effect, e.g., `"first-word-in-line"`. |
-| `offset`       | (Optional) Time offset in seconds.                                            |
-| `volume`       | (Optional) Volume (0.0 to 1.0).                                   |
+See the [Effects & Animations Guide](./EFFECTS_AND_ANIMATIONS.md#8-sound-effects) for examples.
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `type` | `string` | (required) | `preset` or `custom`. |
+| `name` | `string` | (required for `preset`) | `click`, `click-light`, `ding`, `ding-long`, `ding-short`, `glitch`, `glitch-static`, `heart-beat`, `hit-intense`, `hit-strong`, `pop`, `pop-2`, `slide-paper`, `swoosh`, `whoosh`, `whoosh-2` or `whoosh-deep`. |
+| `path` | `string` | (required for `custom`) | Path to an audio file, relative to the config file. |
+| `when` | `string` | (required) | `narration-starts` or `narration-ends`. |
+| `what` | `string` | (required) | `word`, `line` or `segment`. |
+| `tag_condition` | `string` | `""` | Condition for triggering the sound, e.g., `"first-word-in-line"`. |
+| `offset` | `float` | `0.0` | Time offset in seconds. |
+| `volume` | `float` | `0.25` | Volume, from `0.0` to `1.0`. |
+| `interpret_consecutive_words_as_one` | `boolean` | `true` | With `what: word`, consecutive words matching `tag_condition` play the sound only once. |
 
 ---
 
@@ -126,23 +122,38 @@ Array of objects, each defining a splitting rule. They are applied in order.
 
 `"animations": [ ... ]`
 
-Each object in the array defines an animation.
+Each object in the array defines an animation. For a step-by-step explanation with examples, see the [Effects & Animations Guide](./EFFECTS_AND_ANIMATIONS.md).
 
 **Common Properties:**
-| Key            | Description                                                                    |
-| -------------- | ------------------------------------------------------------------------------ |
-| `type`         | Animation name (see list below).                                               |
-| `when`         | `narration-starts` or `narration-ends`.                                        |
-| `what`         | `word`, `line`, or `segment`.                                                  |
-| `tag_condition`| (Optional) Condition for triggering the animation, e.g., `"last-word"`.        |
-| `duration`     | Duration in seconds.                                                           |
-| `delay`        | (Optional) Delay in seconds.                                                   |
 
-**Animation Types (`type`)**:
-*   **preset**: `fade_in`, `fade_out`, `zoom_in`, `zoom_out`, `pop_in`, `pop_out`, `pop_in_bounce`, `slide_in`, `slide_out`.
-*   **primitive**: More granular control.
-    *   `fade_in_primitive`, `pop_in_primitive`, `zoom_in_primitive`, `slide_in_primitive`.
-    *   Can include extra properties like `init_scale`, `overshoot`, and `transformer` (`linear`, `ease_in`, `ease_out`, `inverse`).
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+| `type` | `string` | (required) | Animation name (see below). |
+| `when` | `string` | (required) | `narration-starts` or `narration-ends`. |
+| `what` | `string` | (required) | `word`, `line` or `segment`. |
+| `tag_condition` | `string` | `""` | Condition for triggering the animation, e.g., `"last-word-in-line"`. |
+| `duration` | `float` | `0.2` | Duration in seconds. |
+| `delay` | `float` | `0.0` | Delay in seconds. |
+
+**Presets:**
+
+| `type` | Extra options (default) |
+| --- | --- |
+| `fade_in`, `fade_out`, `zoom_in`, `zoom_out`, `pop_in`, `pop_out`, `pop_in_bounce` | |
+| `slide_in`, `slide_out` | `direction` (`left` for `slide_in`, `right` for `slide_out`): `left`, `right`, `up` or `down` |
+
+**Primitives:**
+
+All primitives also accept `transformer` (`linear`): `linear`, `ease_in`, `ease_out`, `ease_in_out` or `inverse`.
+
+| `type` | Extra options (default) |
+| --- | --- |
+| `fade_in_primitive` | |
+| `zoom_in_primitive` | `init_scale` (`0.5`), `overshoot` |
+| `pop_in_primitive` | `init_scale` (`0.7`), `min_scale` (`0.3`), `min_scale_at` (`0.5`), `overshoot` |
+| `slide_in_primitive` | `direction` (`left`), `distance` (`100`), `overshoot` |
+
+`overshoot` is an object with `amount` (`0.1`) and `peak_at` (`0.7`), e.g., `"overshoot": { "amount": 0.1, "peak_at": 0.7 }`. If it's not set, there's no overshoot.
 
 ---
 

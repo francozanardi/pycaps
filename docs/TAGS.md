@@ -103,4 +103,6 @@ condition = TagConditionFactory.AND(
 condition_from_string = TagConditionFactory.parse("highlight and not first-word-in-line")
 ```
 
-The supported operators are `and`, `or`, and `not`.
+The supported operators are `and`, `or`, and `not`, and you can group conditions with parentheses (e.g., `"(highlight or first-word-in-line) and not last-word-in-line"`).
+
+To see how conditions are used with animations and effects, check the [Effects & Animations Guide](./EFFECTS_AND_ANIMATIONS.md#4-targeting-specific-words-with-tag_condition).
