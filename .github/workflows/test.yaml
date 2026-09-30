@@ -22,7 +22,8 @@ jobs:
           sudo apt-get install -y \
               libfontconfig1 \
               libegl1-mesa \
-              ttf-mscorefonts-installer
+              ttf-mscorefonts-installer \
+              ffmpeg
 
       - name: Install package without extras
         run: pip install -e .

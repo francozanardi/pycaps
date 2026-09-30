@@ -52,8 +52,8 @@ class CapsPipelineBuilder:
     def add_css(self, css_file_path: str) -> "CapsPipelineBuilder":
         if not os.path.exists(css_file_path):
             raise ValueError(f"CSS file not found: {css_file_path}")
-        css_content = open(css_file_path, "r", encoding="utf-8").read()
-        return self.add_css_content(css_content)
+        with open(css_file_path, "r", encoding="utf-8") as css_file:
+            return self.add_css_content(css_file.read())
     
     def add_css_content(self, css_content: str) -> "CapsPipelineBuilder":
         self._css += css_content
