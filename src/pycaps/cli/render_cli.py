@@ -89,6 +89,7 @@ def render(
     elif config_file:
         typer.echo(f"Rendering {input} with config file {config_file}...")
         builder = JsonConfigLoader(config_file).load(False)
+        builder.with_input_video(input)
         
     if output: builder.with_output_video(output)
     if style: builder.add_css_content(_parse_styles(style))
