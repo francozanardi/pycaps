@@ -40,6 +40,7 @@ The `pycaps.template.json` file is the heart of a template, defining the entire 
 | ---------- | -------- | ------- | -------------------------------------------------------------------------- |
 | `language` | `string` | `null`  | Language of the audio (e.g., "en", "es"). Auto-detects if `null`.          |
 | `model`    | `string` | `base`  | Whisper model size. Options: `tiny`, `base`, `small`, `medium`, `large`. |
+| `backend`  | `string` | `openai` | Whisper implementation. Options: `openai` ([openai-whisper](https://github.com/openai/whisper)), `faster` ([faster-whisper](https://github.com/SYSTRAN/faster-whisper), needs to be installed). |
 
 ---
 

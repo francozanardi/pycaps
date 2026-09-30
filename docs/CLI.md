@@ -44,6 +44,15 @@ This will create a new video named `output_... .mp4` in your current directory.
 -   `--layout-align <value>`: Change vertical alignment. Options: `top`, `center`, `bottom`.
 -   `--layout-align-offset <value>`: Nudge the vertical alignment. A value from -1.0 (up) to 1.0 (down).
 
+#### Transcription (Whisper)
+-   `--lang <code>`: Language of the video (e.g., `en`, `es`). Auto-detected if not provided.
+-   `--whisper-model <name>`: Whisper model size (e.g., `tiny`, `base`, `small`, `medium`, `large`, `turbo`). Defaults to `base`.
+-   `--whisper-prompt <text>`: Vocabulary hints to improve accuracy on specific words (e.g., brand names).
+-   `--whisper-backend <openai|faster>`: Whisper implementation used to transcribe. Defaults to `openai` ([openai-whisper](https://github.com/openai/whisper)). `faster` uses [faster-whisper](https://github.com/SYSTRAN/faster-whisper), which is faster and uses less memory, especially on CPU. It requires `pip install faster-whisper`.
+    ```bash
+    pycaps render --input my_video.mp4 --template default --whisper-backend faster --whisper-model small
+    ```
+
 #### Utilities
 -   `--preview`: Renders a quick, low-quality preview of the first 5 seconds.
 -   `--preview-time <start,end>`: Renders a preview of a specific time range.

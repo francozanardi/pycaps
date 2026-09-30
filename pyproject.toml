@@ -50,8 +50,12 @@ base = [
     "playwright",
     "pywebview",
 ]
+faster-whisper = [
+    "faster-whisper"
+]
 all = [
     "openai-whisper",
+    "faster-whisper",
     "google-cloud-speech",
     "playwright",
     "pywebview",
