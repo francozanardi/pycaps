@@ -114,6 +114,14 @@ class RenderCliTranscriptFlagsTests(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         self.assertIn("Only one of --subtitle-data or --transcript can be provided", result.output)
 
+    def test_input_is_used_with_config_file(self):
+        with patch("pycaps.cli.render_cli.JsonConfigLoader") as json_config_loader:
+            builder = json_config_loader.return_value.load.return_value
+            result = self.runner.invoke(app, ["render", "--input", "video.mp4", "--config", "config.json"])
+
+        self.assertEqual(result.exit_code, 0, result.output)
+        builder.with_input_video.assert_called_once_with("video.mp4")
+
 
 if __name__ == "__main__":
     unittest.main()

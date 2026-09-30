@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed custom sound effects from JSON configs - They always failed because `when` and `what` were swapped, and their `path` is now relative to the config file, like the other paths.
+- Fixed `ModifyWordsEffect` without a `tag_condition` - It didn't modify any word, instead of modifying all of them.
+- Fixed `pycaps render --config` ignoring `--input` - Configs without an `input` field failed with "Input video path is required".
 - Fixed CSS being lost when replacing the subtitle renderer - Calling `with_custom_subtitle_renderer()` after adding CSS (e.g. after loading a template) dropped the styles, so words rendered without the template styles and with no gaps between them ([#21](https://github.com/francozanardi/pycaps/issues/21), [#22](https://github.com/francozanardi/pycaps/issues/22)).
 
 ## [0.2.1] - 2026-01-10

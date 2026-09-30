@@ -1,16 +1,15 @@
 # Code & JSON Examples
 
-This page contains practical examples of using `pycaps`, ranging from simple configurations to advanced programmatic pipelines.
+This page contains practical examples of using `pycaps`, ranging from simple configurations to advanced programmatic pipelines. For a step-by-step explanation of the effects and animations used here, see the [Effects & Animations Guide](./EFFECTS_AND_ANIMATIONS.md).
 
 ---
 ## Example 1: Minimal JSON Configuration
 
-This is a bare-bones `config.json` for a quick render. It defines the input/output, styles, and a simple animation.
+This is a bare-bones `config.json` for a quick render. It defines the output, styles, and a simple animation.
 
 **`config.json`**
 ```json
 {
-  "input": "video.mp4",
   "output": "video_with_subs.mp4",
   "css": "styles.css",
   "layout": {
@@ -41,16 +40,16 @@ This is a bare-bones `config.json` for a quick render. It defines the input/outp
 
 **To run this, you can use the CLI:**
 ```bash
-pycaps render --config config.json
+pycaps render --input video.mp4 --config config.json
 ```
 
 Or, you can also do it from Python:
 ```python
 from pycaps import JsonConfigLoader
 
-loader = JsonConfigLoader("config.json")
-pipeline = loader.load() # you can use loader.load(False) if you can receive the builder 
-pipeline.run()
+builder = JsonConfigLoader("config.json").load(False) # load(False) returns the builder, so you can keep configuring it
+builder.with_input_video("video.mp4")
+builder.build().run()
 ```
 
 ---
@@ -203,21 +202,22 @@ builder.add_effect(SoundEffect(
 ))
 
 # --- 4. Add Animations ---
+# Lines slide in from the left, except the last line of each segment, which slides in from the right
 builder.add_animation(
-    animation=SlideIn(direction="left"),
+    animation=SlideIn(direction=Direction.LEFT),
     when=EventType.ON_NARRATION_STARTS,
-    what=ElementType.SEGMENT,
-    tag_condition=TagConditionFactory.HAS(BuiltinTag.FIRST_LINE_IN_SEGMENT
+    what=ElementType.LINE,
+    tag_condition=TagConditionFactory.NOT(BuiltinTag.LAST_LINE_IN_SEGMENT)
 )
 builder.add_animation(
-    animation=SlideIn(direction="right"),
+    animation=SlideIn(direction=Direction.RIGHT),
     when=EventType.ON_NARRATION_STARTS,
-    what=ElementType.SEGMENT,
-    tag_condition=TagConditionFactory.HAS(BuiltinTag.LAST_LINE_IN_SEGMENT
+    what=ElementType.LINE,
+    tag_condition=TagConditionFactory.HAS(BuiltinTag.LAST_LINE_IN_SEGMENT)
 )
-# "Important" words zoom out when spoken
+# "Important" words zoom in when spoken
 builder.add_animation(
-    animation=ZoomOut(duration=0.2),
+    animation=ZoomIn(duration=0.2),
     when=EventType.ON_NARRATION_STARTS,
     what=ElementType.WORD,
     tag_condition=TagConditionFactory.parse("important")
