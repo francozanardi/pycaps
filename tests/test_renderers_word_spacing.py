@@ -54,7 +54,9 @@ def _get_gaps_between_words(document: Document) -> Dict[WordPair, int]:
     return gaps
 
 
-def _render_and_get_gaps(configure_builder: Callable[[CapsPipelineBuilder, str], None]) -> Dict[WordPair, int]:
+# Video generation is mocked, so ffmpeg is not required
+@patch("pycaps.pipeline.caps_pipeline.check_dependencies", return_value=None)
+def _render_and_get_gaps(configure_builder: Callable[[CapsPipelineBuilder, str], None], _mock_dependencies) -> Dict[WordPair, int]:
     template = TemplateFactory().create("word-focus")
     template_folder = template.get_folder_path()
     css_path = os.path.join(template_folder, "styles.css")

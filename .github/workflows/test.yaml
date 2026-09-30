@@ -30,5 +30,10 @@ jobs:
       - name: Run smoke test
         run: pycaps --help
 
+      - name: Install renderers dependencies
+        run: |
+          pip install html2pic playwright
+          playwright install --with-deps chromium
+
       - name: Run unit tests
         run: python -m unittest discover -s tests -p "test_*.py"
