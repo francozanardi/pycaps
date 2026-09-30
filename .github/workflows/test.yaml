@@ -22,13 +22,19 @@ jobs:
           sudo apt-get install -y \
               libfontconfig1 \
               libegl1-mesa \
-              ttf-mscorefonts-installer
+              ttf-mscorefonts-installer \
+              ffmpeg
 
       - name: Install package without extras
         run: pip install -e .
 
       - name: Run smoke test
         run: pycaps --help
+
+      - name: Install renderers dependencies
+        run: |
+          pip install html2pic playwright
+          playwright install --with-deps chromium
 
       - name: Run unit tests
         run: python -m unittest discover -s tests -p "test_*.py"

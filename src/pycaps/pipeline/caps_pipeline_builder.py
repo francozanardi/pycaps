@@ -16,6 +16,7 @@ class CapsPipelineBuilder:
 
     def __init__(self):
         self._caps_pipeline: CapsPipeline = CapsPipeline()
+        self._css: str = ""
     
     def with_input_video(self, input_video_path: str) -> "CapsPipelineBuilder":
         if not os.path.exists(input_video_path):
@@ -36,6 +37,9 @@ class CapsPipelineBuilder:
             raise ValueError(f"Resources path is not a directory: {resources_path}")
         self._caps_pipeline._resources_dir = resources_path
         return self
+
+    def get_resources_dir(self) -> Optional[str]:
+        return self._caps_pipeline._resources_dir
     
     def with_video_quality(self, quality: VideoQuality) -> "CapsPipelineBuilder":
         self._caps_pipeline._video_generator.set_video_quality(quality)
@@ -48,13 +52,15 @@ class CapsPipelineBuilder:
     def add_css(self, css_file_path: str) -> "CapsPipelineBuilder":
         if not os.path.exists(css_file_path):
             raise ValueError(f"CSS file not found: {css_file_path}")
-        css_content = open(css_file_path, "r", encoding="utf-8").read()
-        self._caps_pipeline._renderer.append_css(css_content)
-        return self
+        with open(css_file_path, "r", encoding="utf-8") as css_file:
+            return self.add_css_content(css_file.read())
     
     def add_css_content(self, css_content: str) -> "CapsPipelineBuilder":
-        self._caps_pipeline._renderer.append_css(css_content)
+        self._css += css_content
         return self
+
+    def get_css(self) -> str:
+        return self._css
 
     def with_custom_subtitle_renderer(self, subtitle_renderer: SubtitleRenderer) -> "CapsPipelineBuilder":
         self._caps_pipeline._renderer = subtitle_renderer
@@ -133,5 +139,7 @@ class CapsPipelineBuilder:
             self._caps_pipeline._preview_time = preview_time
         
         pipeline = self._caps_pipeline
+        pipeline._renderer.append_css(self._css)
         self._caps_pipeline = CapsPipeline()
+        self._css = ""
         return pipeline
