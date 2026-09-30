@@ -1,6 +1,5 @@
 import typer
 from .template_cli import template_app
-from .config_cli import config_app
 from .render_cli import render_app
 from .preview_styles_cli import preview_app
 
@@ -12,7 +11,6 @@ app = typer.Typer(
 app.add_typer(render_app)
 app.add_typer(preview_app)
 app.add_typer(template_app, name="template")
-app.add_typer(config_app)
 
 @app.callback()
 def main(ctx: typer.Context):

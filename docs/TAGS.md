@@ -47,7 +47,7 @@ You can add semantic tags using `tagger_rules` in your JSON config or by using t
 
 1.  **`wordlist`**: Tags a word if it appears in a specified list of words.
 2.  **`regex`**: Tags words that match a regular expression pattern.
-3.  **`ai`**: Uses an LLM to tag words based on a natural language prompt (e.g., "words related to finance"). **Requires an API Key.**
+3.  **`ai`**: Uses an LLM to tag words based on a natural language prompt (e.g., "words related to finance"). **Requires an [OpenAI API key](./API_USAGE.md).**
 
 ### Example: Using Tags in CSS
 

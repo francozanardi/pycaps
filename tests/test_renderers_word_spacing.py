@@ -77,9 +77,7 @@ def _render_and_get_gaps(configure_builder: Callable[[CapsPipelineBuilder, str],
              patch("pycaps.video.video_generator.VideoGenerator.get_sanitized_fragment_time", return_value=None), \
              patch("pycaps.video.video_generator.VideoGenerator.get_video_size", return_value=VIDEO_SIZE), \
              patch("pycaps.video.video_generator.VideoGenerator.generate", side_effect=rendered_documents.append), \
-             patch("pycaps.video.video_generator.VideoGenerator.close"), \
-             patch("pycaps.api.api_sender.start"), \
-             patch("pycaps.api.api_sender.close"):
+             patch("pycaps.video.video_generator.VideoGenerator.close"):
             pipeline.run()
 
     return _get_gaps_between_words(rendered_documents[0])
