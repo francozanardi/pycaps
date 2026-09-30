@@ -11,14 +11,18 @@
 ![demo-1](https://github.com/user-attachments/assets/fd2d3325-c986-4b6a-81ba-09c428577e61)
 ![demo-2](https://github.com/user-attachments/assets/9a789244-0387-4ac8-ab51-b3601447953e)
 
-<sub>See more examples on <a href="https://www.pycaps.com/">pycaps.com</a></sub>
-
 > ### Want a visual editor instead? Meet tscaps
 >
 > **[tscaps](https://github.com/francozanardi/tscaps)** is the browser-native sibling of pycaps: same core idea (CSS as the subtitle rendering engine), but a full interactive editor instead of a CLI/library. Drop a video, edit and style captions with live preview, and export with the subtitles burned in. No Python, no FFmpeg, no install, transcription runs in your browser.
 >
 > It's open source (engine MIT, app AGPL-3.0). Try it instantly:
 > [![Try tscaps](https://img.shields.io/badge/Open-tscaps.io%2Flocal-5B7BE6?style=flat)](https://tscaps.io/local)
+
+> ### Want to automate captions without running anything yourself? Use the tscaps API
+>
+> The **[tscaps API](https://tscaps.io/api)** adds animated captions to your videos with a single HTTP request, from any language: send a video URL (or upload the file), choose a template, and get back an MP4 with the subtitles burned in. Transcription and rendering run in the cloud, so you don't need to set up Python, FFmpeg, Whisper or a browser on your servers.
+>
+> It's designed for developers and AI agents, and it has a free tier. See the [API docs](https://tscaps.io/docs) to get started.
 
 ## Try It Online (no installation needed!)
 
