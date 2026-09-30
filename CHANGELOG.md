@@ -5,12 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.0] - 2026-09-30
 
 ### Added
 
 - Added faster-whisper as an alternative transcription backend - Faster and lighter than openai-whisper, especially on CPU. It can be selected with `--whisper-backend faster`, `"backend": "faster"` in the `whisper` config, or `with_whisper_config(backend=WhisperBackend.FASTER)`, and it's available as the `faster-whisper` extra ([#20](https://github.com/francozanardi/pycaps/issues/20)).
 - Added external transcript input - Captions can be generated from an existing transcript (Whisper JSON, pycaps JSON, SRT or VTT) instead of transcribing the audio, via `with_transcription()` / `with_transcription_file()` or the `--transcript` and `--transcript-format` CLI flags ([#11](https://github.com/francozanardi/pycaps/issues/11)).
+- Added `--whisper-prompt` - Vocabulary hints for Whisper to improve the transcription of brand names, technical terms and other uncommon words. It's also available as `with_whisper_config(initial_prompt=...)` ([#13](https://github.com/francozanardi/pycaps/pull/13)).
+
+### Changed
+
+- The animated emojis are now cached in the user cache directory of each platform (e.g., `~/.cache/pycaps` on Linux), instead of `~/.pycaps` ([#17](https://github.com/francozanardi/pycaps/pull/17)).
 
 ### Removed
 
@@ -22,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed `ModifyWordsEffect` without a `tag_condition` - It didn't modify any word, instead of modifying all of them.
 - Fixed `pycaps render --config` ignoring `--input` - Configs without an `input` field failed with "Input video path is required".
 - Fixed CSS being lost when replacing the subtitle renderer - Calling `with_custom_subtitle_renderer()` after adding CSS (e.g. after loading a template) dropped the styles, so words rendered without the template styles and with no gaps between them ([#21](https://github.com/francozanardi/pycaps/issues/21), [#22](https://github.com/francozanardi/pycaps/issues/22)).
+- Fixed `PictexSubtitleRenderer` with html2pic 0.2 - It failed because of a renamed internal attribute.
 
 ## [0.2.1] - 2026-01-10
 
