@@ -124,9 +124,9 @@ class JsonConfigLoader:
                 case "custom":
                     self._builder.add_effect(
                         SoundEffect(
-                            Sound(effect.path, effect.path),
-                            effect.what,
+                            Sound(effect.path, os.path.join(self._base_path, effect.path)),
                             effect.when,
+                            effect.what,
                             self._build_tag_condition(effect.tag_condition),
                             effect.offset,
                             effect.volume,
