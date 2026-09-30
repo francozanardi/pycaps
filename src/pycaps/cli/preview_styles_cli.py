@@ -22,9 +22,8 @@ def preview_styles(
         css_content = open(css, "r", encoding="utf-8").read()
         CssSubtitlePreviewer().run(css_content, resources)
     elif template_name:
-        # TODO: This breaks encapsulation to get the CSS content and the resources directory of the template
         template = TemplateFactory().create(template_name)
         builder = TemplateLoader(template).load(False)
-        css_content = builder._caps_pipeline._renderer._custom_css
-        resources_dir = builder._caps_pipeline._resources_dir
+        css_content = builder.get_css()
+        resources_dir = builder.get_resources_dir()
         CssSubtitlePreviewer().run(css_content, resources_dir)
