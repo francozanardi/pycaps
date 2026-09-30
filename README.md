@@ -50,7 +50,7 @@ The best choice for **processing longer videos** with **maximum transcription qu
 *   **CSS Styling**: Style subtitles using standard CSS. Target specific states like `.word-being-narrated` for dynamic effects, cleanly separating style from logic.
 *   **Word Tagging**: Tag words or phrases using regular expressions, word lists, or AI. These tags act as powerful selectors for applying custom CSS, effects, or animations.
 *   **Advanced Animations & Effects**: Bring words to life with a library of built-in animations (fades, pops, slides) and effects (typewriting, emoji insertion, sound effects).
-*   **Whisper-based Transcription**: Automatically generate accurate, word-level timestamps for your videos using OpenAI's Whisper.
+*   **Whisper-based Transcription**: Automatically generate accurate, word-level timestamps for your videos using OpenAI's Whisper, or [faster-whisper](https://github.com/SYSTRAN/faster-whisper) for faster transcriptions on CPU.
 *   **Dual Interface**: Use it as a simple CLI for quick renders or as a comprehensive Python library for programmatic video creation.
 *   **Offline-First**: The core transcription, styling, and rendering engine runs entirely on your local machine. An internet connection is only needed for optional AI-powered features that require contextual understanding of your script.
 
@@ -80,6 +80,9 @@ pycaps is currently in a very alpha stage and is not yet available on PyPI. You 
     ```bash
     # Basic dependencies to work with default configuration (includes whisper and playwright)
     pip install "git+https://github.com/francozanardi/pycaps.git#egg=pycaps[base]"
+
+    # Adds faster-whisper, a faster transcription backend (use it with --whisper-backend faster)
+    pip install "git+https://github.com/francozanardi/pycaps.git#egg=pycaps[base,faster-whisper]"
 
     # Faster alternative, doesn't include subtitles editor, and renders without a browser (it uses google cloud speech to text and html2pic to render the subtitles)
     pip install "git+https://github.com/francozanardi/pycaps.git#egg=pycaps[browser]"

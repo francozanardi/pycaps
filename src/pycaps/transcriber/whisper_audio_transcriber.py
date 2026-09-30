@@ -1,6 +1,7 @@
 from .base_transcriber import AudioTranscriber
+from .whisper_document_builder import build_document, WhisperSegment, WhisperWord
 from typing import Optional, Any
-from pycaps.common import Document, Segment, Line, Word, TimeFragment
+from pycaps.common import Document
 from pycaps.logger import logger
 
 class WhisperAudioTranscriber(AudioTranscriber):
@@ -36,41 +37,13 @@ class WhisperAudioTranscriber(AudioTranscriber):
             return Document()
 
         logger().debug(f"Whisper result: {result}")
-        document = Document()
-        for segment_info in result["segments"]:
-            segment_start = float(segment_info["start"])
-            segment_end = float(segment_info["end"])
-            if segment_start == segment_end:
-                segment_end = segment_start + 0.01
-            segment_time = TimeFragment(start=segment_start, end=segment_end)
-            segment = Segment(time=segment_time)
-            line = Line(time=segment_time)
-            segment.lines.add(line)
+        return build_document(self._to_whisper_segment(segment_info) for segment_info in result["segments"])
 
-            if not "words" in segment_info or not isinstance(segment_info["words"], list):
-                logger().debug(f"Segment '{segment_info['text']}' has no detailed word data.")
-                continue
-
-            for word_entry in segment_info["words"]:
-                # Ensure 'word' is a string, sometimes Whisper might return non-string for certain symbols.
-                word_text = str(word_entry["word"]).strip()
-                if not word_text:
-                    continue
-
-                word_start = float(word_entry["start"])
-                word_end = float(word_entry["end"])
-                if word_start == word_end:
-                    word_end = word_start + 0.01
-                word_time = TimeFragment(start=word_start, end=word_end)
-                word = Word(text=word_text, time=word_time)
-                line.words.add(word) # so far is everything in one single line (we split it in next steps of the pipeline)
-
-            document.segments.add(segment)
-        
-        if not document.segments:
-            logger().warning("No valid segments were processed from Whisper's transcription.")
-
-        return document 
+    def _to_whisper_segment(self, segment_info: dict) -> WhisperSegment:
+        words = None
+        if "words" in segment_info and isinstance(segment_info["words"], list):
+            words = [WhisperWord(text=w["word"], start=w["start"], end=w["end"]) for w in segment_info["words"]]
+        return WhisperSegment(text=segment_info.get("text", ""), start=segment_info["start"], end=segment_info["end"], words=words)
 
     def _get_model(self):
         if self._model:

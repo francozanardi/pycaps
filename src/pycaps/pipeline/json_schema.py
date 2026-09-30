@@ -4,6 +4,7 @@ from pycaps.common import EventType, ElementType, VideoQuality, CacheStrategy
 from pycaps.effect import EmojiAlign
 from typing import Literal, Annotated, Optional
 from pycaps.animation import Direction, OvershootConfig
+from pycaps.transcriber import WhisperBackend
 
 # TODO: we are copying the default values that receive the classes, we should avoid that
 class BaseConfigModel(BaseModel):
@@ -15,6 +16,7 @@ class VideoConfig(BaseConfigModel):
 class WhisperConfig(BaseConfigModel):
     language: Optional[str] = None
     model: Literal["tiny", "tiny.en", "base", "base.en", "small", "small.en", "medium", "medium.en", "large", "turbo"] = "base"
+    backend: WhisperBackend = WhisperBackend.OPENAI
 
 class LimitByWordsSplitterConfig(BaseConfigModel):
     type: Literal["limit_by_words"]
