@@ -382,7 +382,7 @@ builder.add_effect(EmojiInWordEffect(emojis=["🔥", "🚀"], tag_condition=TagC
 
 #### `emoji_in_segment`
 
-Uses AI to add a relevant emoji to the segments, in a new line above or below the text. **It requires an API key**, see the [API Usage Guide](./API_USAGE.md). Without one, the effect is skipped with a warning.
+Uses AI to add a relevant emoji to the segments, in a new line above or below the text. **It requires an OpenAI API key**, see [AI Features](./API_USAGE.md). Without one, the effect is skipped with a warning.
 
 | Option | Default | Description |
 | --- | --- | --- |

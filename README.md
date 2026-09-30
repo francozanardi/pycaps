@@ -174,7 +174,7 @@ If you're new to `pycaps`, these guides are ordered to learn it step by step:
 And as reference:
 
 *   🔧 **[JSON Configuration Reference](./docs/CONFIG_REFERENCE.md)**: all the options of a template in one place.
-*   🤖 **[API Usage Guide](./docs/API_USAGE.md)**: set up the AI-powered features.
+*   🤖 **[AI Features](./docs/API_USAGE.md)**: set up the AI-powered features.
 
 ## Contributing
 

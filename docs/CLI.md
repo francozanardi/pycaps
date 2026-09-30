@@ -9,7 +9,6 @@ The CLI is structured into several commands:
 -   `pycaps render`: The main command to process and render a video.
 -   `pycaps preview-styles`: A tool to live-preview your CSS styles.
 -   `pycaps template`: Commands for managing templates.
--   `pycaps config`: Manage your API key.
 
 You can always get help for any command by adding `--help`, for example: `pycaps render --help`.
 
@@ -113,11 +112,3 @@ Manage your project templates.
     # Create a new template called 'my-new-style' based on the 'default' one
     pycaps template create --name my-new-style --from default
     ```
-
-## `pycaps config`
-
-Manage your Pycaps API key for AI features.
-
--   `pycaps config`: Shows your currently saved API key, if any.
--   `pycaps config --set-api-key <your-key>`: Saves your API key locally.
--   `pycaps config --unset-api-key`: Removes your saved API key.

@@ -1,6 +1,5 @@
 from typing import Dict
 from pycaps.common import Tag
-from pycaps.api import ApiKeyService, PycapsTaggerApi
 from .external_llm_tagger import ExternalLlmTagger
 from pycaps.ai import LlmProvider
 from pycaps.logger import logger
@@ -18,11 +17,8 @@ class AiTagger:
             Text with XML-like tags around relevant terms
             Example: "I feel <emotion>happy</emotion> about my <finance>investment</finance>"
         """
-        if ApiKeyService.has():
-            return PycapsTaggerApi().process(text, rules)
-        elif LlmProvider.get().is_enabled():
-            logger().warning("Pycaps API is not set, using external LLM API key for AI tagging rules.")
-            return ExternalLlmTagger().process(text, rules)
-        else:
-            logger().warning("Neither Pycaps API nor external LLM API key are set. Ignoring AI tagging rules.")
+        if not LlmProvider.get().is_enabled():
+            logger().warning("The LLM provider is not enabled. Ignoring AI tagging rules.")
             return text
+
+        return ExternalLlmTagger().process(text, rules)

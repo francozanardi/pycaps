@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added faster-whisper as an alternative transcription backend - Faster and lighter than openai-whisper, especially on CPU. It can be selected with `--whisper-backend faster`, `"backend": "faster"` in the `whisper` config, or `with_whisper_config(backend=WhisperBackend.FASTER)`, and it's available as the `faster-whisper` extra ([#20](https://github.com/francozanardi/pycaps/issues/20)).
 - Added external transcript input - Captions can be generated from an existing transcript (Whisper JSON, pycaps JSON, SRT or VTT) instead of transcribing the audio, via `with_transcription()` / `with_transcription_file()` or the `--transcript` and `--transcript-format` CLI flags ([#11](https://github.com/francozanardi/pycaps/issues/11)).
 
+### Removed
+
+- Removed the Pycaps API, which was deprecated and is no longer available - The `pycaps config` command (used to set its API key) was removed, and the AI features (`ai` tagger rules and `emoji_in_segment`) now use only your own OpenAI API key, set with the `PYCAPS_OPENAI_API_KEY` environment variable. See [AI Features](docs/API_USAGE.md).
+
 ### Fixed
 
 - Fixed custom sound effects from JSON configs - They always failed because `when` and `what` were swapped, and their `path` is now relative to the config file, like the other paths.

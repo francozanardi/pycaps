@@ -1,56 +1,32 @@
-# AI Features and API Usage
+# AI Features
 
-Some of pycaps' most powerful features, such as the AI-driven semantic tagger (`ai` tagger rule) and the automatic emoji effect (`emoji_in_segment`), rely on a Large Language Model (LLM) to understand the context of your script.
+Some features of pycaps use a Large Language Model (LLM) to understand the context of your script:
 
-To use these features, you need to provide an API key. You have two options.
+- The `ai` rules of the semantic tagger, which tag words based on a description (see the [Tagging System](./TAGS.md)).
+- The `emoji_in_segment` effect, which adds relevant emojis to the subtitles (see the [Effects & Animations Guide](./EFFECTS_AND_ANIMATIONS.md#emoji_in_segment)).
 
-## Option 1: Use the Pycaps API (Recommended)
+These features use the OpenAI API, so they need your own OpenAI API key. Everything else in pycaps runs locally, without an API key.
 
-This is the default and recommended way to access AI features.
+## How to set up
 
-**Why use the Pycaps API?**
-*   **Optimized for Pycaps**: The service is specifically tailored for pycaps' features.
-*   **Generous Free Tier**: Get started for free. New accounts receive credits to process up to 5 minutes of video with AI features per month.
-*   **Simplicity**: A single key manages access to all current and future AI features without needing to manage your own model infrastructure.
-*   **Advanced AI usage**: Best models, optimized requests, structured output to get better results.
-
-**It's currently under development**. It could generate unexpected responses or errors.
-
-### How to set up:
-
-1.  Go to `https://pycaps.com`, sign up for an account, and get your API key from the dashboard.
-2.  Configure pycaps to use your key by running the following command in your terminal:
+1.  Install the OpenAI client:
 
     ```bash
-    pycaps config --set-api-key YOUR_PYCAPS_API_KEY
+    pip install openai
     ```
 
-This will store your key locally for all future `pycaps` runs.
+2.  Set an environment variable named `PYCAPS_OPENAI_API_KEY` with your OpenAI API key.
 
-## Option 2: Use Your Own OpenAI API Key
+    **On macOS/Linux:**
+    ```bash
+    export PYCAPS_OPENAI_API_KEY="sk-YourOpenAIKeyHere"
+    ```
+    You can add this line to your shell profile (e.g., `~/.zshrc`, `~/.bash_profile`) to make it permanent.
 
-If you prefer to use your own OpenAI account and billing, you can provide your own API key. Pycaps will use this key as a fallback if a Pycaps API key is not configured. In these cases, the default prompts coded in the library will be used to request the LLM. These prompts are not optimized, but they do their job.
+    **On Windows (Command Prompt):**
+    ```powershell
+    setx PYCAPS_OPENAI_API_KEY "sk-YourOpenAIKeyHere"
+    ```
+    You may need to restart your terminal for the change to take effect.
 
-### How to set up:
-
-You must set an environment variable named `PYCAPS_OPENAI_API_KEY`.
-
-**On macOS/Linux:**
-```bash
-export PYCAPS_OPENAI_API_KEY="sk-YourOpenAIKeyHere"
-```
-You can add this line to your shell profile (e.g., `~/.zshrc`, `~/.bash_profile`) to make it permanent.
-
-**On Windows (Command Prompt):**
-```powershell
-setx PYCAPS_OPENAI_API_KEY "sk-YourOpenAIKeyHere"
-```
-You may need to restart your terminal for the change to take effect.
-
-## How Pycaps Prioritizes Keys
-
-When an AI feature is used, pycaps checks for keys in the following order:
-
-1.  It first looks for a key set via the `pycaps config --set-api-key` command (the **Pycaps API** key).
-2.  If that is not found, it then checks for the `PYCAPS_OPENAI_API_KEY` environment variable (your **own OpenAI key**).
-3.  If neither is found, AI-dependent features will be disabled, and a warning will be logged.
+If the environment variable is not set, the AI features are skipped and a warning is logged, but the video is still rendered.

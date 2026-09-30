@@ -92,7 +92,7 @@ Array of effects, applied in order. For a step-by-step explanation with examples
 | --- | --- |
 | `remove_punctuation_marks` | `punctuation_marks` (`["."]`), `exception_marks` (`["..."]`) |
 | `emoji_in_word` | `emojis` (required), `tag_condition` (`""`), `avoid_use_same_emoji_in_a_row` (`true`) |
-| `emoji_in_segment` **(Requires API Key)** | `chance_to_apply` (`0.5`), `align` (`random`: `top`, `bottom` or `random`), `ignore_segments_with_duration_less_than` (`0`), `max_uses_of_each_emoji` (`2`), `max_consecutive_segments_with_emoji` (`3`) |
+| `emoji_in_segment` **(Requires an [OpenAI API key](./API_USAGE.md))** | `chance_to_apply` (`0.5`), `align` (`random`: `top`, `bottom` or `random`), `ignore_segments_with_duration_less_than` (`0`), `max_uses_of_each_emoji` (`2`), `max_consecutive_segments_with_emoji` (`3`) |
 | `typewriting` | `tag_condition` (`""`) |
 | `animate_segment_emojis` | No options. Must be used after `emoji_in_segment`. |
 
@@ -163,7 +163,7 @@ All primitives also accept `transformer` (`linear`): `linear`, `ease_in`, `ease_
 
 Define rules to add semantic tags to words.
 
-*   **`ai`**: Uses an LLM to tag words based on a prompt. **(Requires API Key)**
+*   **`ai`**: Uses an LLM to tag words based on a prompt. **(Requires an [OpenAI API key](./API_USAGE.md))**
     *   `"type": "ai"`
     *   `"tag": string` (The tag to apply, e.g., `"financial_term"`)
     *   `"prompt": string` (The concept to look for, e.g., `"words related to money or finance"`)
