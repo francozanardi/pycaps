@@ -4,7 +4,7 @@ from pycaps.layout import SubtitleLayoutOptions, LineSplitter, LayoutUpdater, Po
 from pycaps.transcriber import AudioTranscriber, BaseSegmentSplitter, WhisperAudioTranscriber, PreviewTranscriber
 from pycaps.transcriber import TranscriptFormat, load_transcription
 from pycaps.common import Document
-from typing import Optional
+from typing import Optional, Union, Dict, Any
 from pycaps.animation import Animation, ElementAnimator
 from pycaps.common import ElementType, EventType, VideoQuality, CacheStrategy
 from pycaps.tag import TagCondition, SemanticTagger, StructureTagger
@@ -48,15 +48,38 @@ class CapsPipelineBuilder:
     def add_css(self, css_file_path: str) -> "CapsPipelineBuilder":
         if not os.path.exists(css_file_path):
             raise ValueError(f"CSS file not found: {css_file_path}")
-        css_content = open(css_file_path, "r", encoding="utf-8").read()
+        with open(css_file_path, "r", encoding="utf-8") as f:
+            css_content = f.read()
         self._caps_pipeline._renderer.append_css(css_content)
         return self
     
-    def add_css_content(self, css_content: str) -> "CapsPipelineBuilder":
+    def add_css_content(self, css_content: Union[str, Dict[str, Any]]) -> "CapsPipelineBuilder":
+        if isinstance(css_content, dict):
+            from pycaps.renderer import PictexSubtitleRenderer
+            css_content = PictexSubtitleRenderer._styles_to_css(css_content)
         self._caps_pipeline._renderer.append_css(css_content)
         return self
 
+    def add_styles(self, styles: Union[str, Dict[str, Any]]) -> "CapsPipelineBuilder":
+        return self.add_css_content(styles)
+
     def with_custom_subtitle_renderer(self, subtitle_renderer: SubtitleRenderer) -> "CapsPipelineBuilder":
+        existing_css = getattr(self._caps_pipeline._renderer, "custom_css", "") or getattr(self._caps_pipeline._renderer, "_custom_css", "")
+        if existing_css:
+            new_css = getattr(subtitle_renderer, "custom_css", "") or getattr(subtitle_renderer, "_custom_css", "")
+            if not new_css:
+                subtitle_renderer.append_css(existing_css)
+            elif existing_css not in new_css:
+                if hasattr(subtitle_renderer, "_custom_css"):
+                    subtitle_renderer._custom_css = existing_css + "\n" + new_css
+                else:
+                    subtitle_renderer.append_css(existing_css)
+
+        if self._caps_pipeline._resources_dir and hasattr(subtitle_renderer, "_resources_dir"):
+            if getattr(subtitle_renderer, "_resources_dir", None) is None:
+                from pathlib import Path
+                subtitle_renderer._resources_dir = Path(self._caps_pipeline._resources_dir)
+
         self._caps_pipeline._renderer = subtitle_renderer
         return self
     

@@ -7,6 +7,14 @@ if TYPE_CHECKING:
     from PIL.Image import Image
 
 class SubtitleRenderer(ABC):
+    @property
+    def custom_css(self) -> str:
+        return getattr(self, "_custom_css", "")
+
+    @custom_css.setter
+    def custom_css(self, value: str):
+        self._custom_css = value
+
     @abstractmethod
     def append_css(self, css: str):
         pass
